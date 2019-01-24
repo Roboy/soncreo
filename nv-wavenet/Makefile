@@ -27,7 +27,7 @@
 
 NVCC = nvcc
 
-ARCH=sm_37
+ARCH=sm_61
 NVCC_FLAGS = -arch=$(ARCH) -std=c++11  -g
 NVCC_FLAGS += --use_fast_math
 

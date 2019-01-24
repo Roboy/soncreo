@@ -5,18 +5,18 @@ import math
 from numpy import finfo
 
 import torch
-from distributed import DistributedDataParallel
+from tacotron2.distributed import DistributedDataParallel
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn import DataParallel
 from torch.utils.data import DataLoader
 
-from fp16_optimizer import FP16_Optimizer
+from tacotron2.fp16_optimizer import FP16_Optimizer
 
-from model import Tacotron2
-from data_utils import TextMelLoader, TextMelCollate
-from loss_function import Tacotron2Loss
-from logger import Tacotron2Logger
-from hparams import create_hparams
+from tacotron2.model import Tacotron2
+from tacotron2.data_utils import TextMelLoader, TextMelCollate
+from tacotron2.loss_function import Tacotron2Loss
+from tacotron2.logger import Tacotron2Logger
+from tacotron2.hparams import create_hparams
 
 
 def batchnorm_to_float(module):
@@ -257,6 +257,8 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
 
 
 if __name__ == '__main__':
+
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--output_directory', type=str,
                         help='directory to save checkpoints')
@@ -277,6 +279,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     hparams = create_hparams(args.hparams)
+    print("sjjs",args.warm_start)
 
     torch.backends.cudnn.enabled = hparams.cudnn_enabled
     torch.backends.cudnn.benchmark = hparams.cudnn_benchmark

@@ -1,5 +1,5 @@
 import tensorflow as tf
-from text import symbols
+from tacotron2.text import symbols
 
 
 def create_hparams(hparams_string=None, verbose=False):
@@ -24,8 +24,8 @@ def create_hparams(hparams_string=None, verbose=False):
         # Data Parameters             #
         ################################
         load_mel_from_disk=False,
-        training_files='filelists/ljs_audio_text_train_filelist.txt',
-        validation_files='filelists/ljs_audio_text_val_filelist.txt',
+        training_files='tacotron2/filelists/ljs_audio_text_train_filelist.txt',
+        validation_files='tacotron2/filelists/ljs_audio_text_val_filelist.txt',
         text_cleaners=['english_cleaners'],
         sort_by_length=False,
 
@@ -79,7 +79,7 @@ def create_hparams(hparams_string=None, verbose=False):
         learning_rate=1e-3,
         weight_decay=1e-6,
         grad_clip_thresh=1,
-        batch_size=48,
+        batch_size=2,
         mask_padding=False  # set model's padded outputs to padded values
     )
 
