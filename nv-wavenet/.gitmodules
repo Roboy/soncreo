@@ -1,3 +1,0 @@
-[submodule "pytorch/tacotron2"]
-	path = pytorch/tacotron2
-	url = https://github.com/NVIDIA/tacotron2
