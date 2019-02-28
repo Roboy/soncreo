@@ -85,7 +85,7 @@ def inference_mel(checkpoint_path):
     hparams.hop_length = 256
     hparams.win_length = 1024
 
-    checkpoint_path = "tacotron2/output/checkpoint_1000"
+    #checkpoint_path = "tacotron2/output/checkpoint_1000"
     model = load_model(hparams)
     try:
         model = model.module
@@ -104,8 +104,12 @@ def inference_mel(checkpoint_path):
     mel = mel.reshape(80, mel.shape[2])
     mel = mel.data
 
+
+
     filename = 'mel/text_to_mel.pt'
     mel = torch.save(mel, filename)
+
+    return mel
 
 def inference_audio():
     pass
@@ -136,19 +140,19 @@ def play_audio(fname):
     p.terminate()
 
 
-'''
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--train_mel', type=bool, help='True or False argument to start training tacotron2 model',default=False)
-    parser.add_argument('--train_wav',type=bool, help='Argument to train mel spectogram to audio model',default=True)
+    parser.add_argument('--train_wav',type=bool, help='Argument to train mel spectogram to audio model',default=False)
     parser.add_argument('--config', type=str,
-                        help='JSON file for nv-wavenet configuration',default='./nvwavenet/pytorch/config.json')
-    parser.add_argument('-i','--infer_mel', type=bool, help='True or False to infer text to mel spectogram')
+                        help='JSON file for nv-wavenet configuration',default='./nv-wavenet/pytorch/config.json')
+    parser.add_argument('-i','--infer_mel', type=bool, default=True, help='True or False to infer text to mel spectogram')
     parser.add_argument('-o', '--output_directory', type=str,
                         help='directory to save checkpoints', default="./output")
     parser.add_argument('-l', '--log_directory', type=str,
                         help='directory to save tensorboard logs',default="./logdir")
-    parser.add_argument('-c', '--checkpoint_path', type=str, default=None,
+    parser.add_argument('-c', '--checkpoint_path', type=str, default='./checkpoints/checkpoint_0',
                         required=False, help='checkpoint path')
 
     args = parser.parse_args()
@@ -166,16 +170,16 @@ if __name__ == "__main__":
     wavenet_config = config["wavenet_config"]
 
 
-    sp=SpeechSynthesis()
+
     if args.train_mel:
         sys.path.append('./tacotron2')
-        sp.train_mel(args.output_directory,args.log_directory,args.checkpoint_path)
+        train_mel(args.output_directory,args.log_directory,args.checkpoint_path)
     if args.train_wav:
         sys.path.append('./nvwavenet/pytorch')
-        sp.train_wav(train_config)
+        train_wav(train_config)
     if args.infer_mel:
-        sp.inference_mel(args.checkpoint_path)
-'''
+        inference_mel(args.checkpoint_path)
+
 
 
 

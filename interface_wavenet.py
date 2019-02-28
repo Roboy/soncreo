@@ -1,6 +1,5 @@
 import sys
 
-sys.path.insert(0,'./nv-wavenet/pytorch')
 
 print(sys.path)
 import os
@@ -10,20 +9,30 @@ import json
 import argparse
 import torch
 
-#=====START: ADDED FOR DISTRIBUTED======
-from distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
-from torch.utils.data.distributed import DistributedSampler
+sys.path.insert(0,'./nv-wavenet/pytorch')
+#=====START: ADDED FOR DISTRIBUTED======4
+#from distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
+#from torch.utils.data.distributed import DistributedSampler
 #=====END:   ADDED FOR DISTRIBUTED======
-
+print(os.getcwd())
 from torch.utils.data import DataLoader
 from wavenet import WaveNet
+
+
+
+
 from mel2samp_onehot import Mel2SampOnehot
 from utils import to_gpu
 
-#from abc import ABC,abstractmethod
+
+
 
 from inference import main as inf_main
 import nv_wavenet
+
+#from abc import ABC,abstractmethod
+
+
 
 
 
@@ -148,11 +157,11 @@ def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rat
 
             iteration += 1
 
-def infer_wav(checkpoint_path, output_dir, batch_size, implementation):
+def infer_wav(mel_path, checkpoint_path, output_dir, batch_size):
 
-    mel_path='mel_files.txt'
 
-    inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation)
+
+    inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation=nv_wavenet.Impl.AUTO)
 
 
 if __name__ == "__main__":
@@ -212,6 +221,7 @@ if __name__ == "__main__":
         train_wav(num_gpus, args.rank, args.group_name, **train_config)
 
     if args.infer:
-        infer_wav(args.checkpoint_path, args.output_dir, args.batch_size, implementation)
+        mel_path = 'mel_files.txt'
+        infer_wav(mel_path,args.checkpoint_path, args.output_dir, args.batch_size)
 
 
