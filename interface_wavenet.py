@@ -159,16 +159,39 @@ def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rat
 
 def infer_wav(mel_path, checkpoint_path, output_dir, batch_size):
 
-
-
     inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation=nv_wavenet.Impl.AUTO)
+
+def play_audio(fname):
+    wf = wave.open(fname, 'rb')
+    p = pyaudio.PyAudio()
+
+    chunk = 1024
+
+    # open stream based on the wave object which has been input.
+    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
+
+    # read data (based on the chunk size)
+    data = wf.readframes(chunk)
+
+    # play stream (looping from beginning of file to the end)
+    while data != '':
+        # writing to the stream is what *actually* plays the sound.
+        stream.write(data)
+        data = wf.readframes(chunk)
+
+        # cleanup stuff.
+    stream.close()
+    p.terminate()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav',type=bool, help='Argument to train mel spectogram to audio model',default=False)
-    parser.add_argument('--infer', type=bool, help = 'Boolean argument to infer audio from text', default=True)
+    parser.add_argument('--infer', type=bool, help = 'Boolean argument to infer audio from text', default=False)
     parser.add_argument('--config', type=str,
                         help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
     parser.add_argument('-r', '--rank', type=int, default=0,
@@ -182,6 +205,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', "--implementation", type=str, default="auto",
                         help="""Which implementation of NV-WaveNet to use.
                             Takes values of single, dual, or persistent""")
+    parser.add_argument('--play', type=bool, default=True)
 
     args = parser.parse_args()
     if args.implementation == "auto":
@@ -223,5 +247,8 @@ if __name__ == "__main__":
     if args.infer:
         mel_path = 'mel_files.txt'
         infer_wav(mel_path,args.checkpoint_path, args.output_dir, args.batch_size)
+
+    if args.play:
+        play_audio('outdir/text_to_mel.wav')
 
 
