@@ -163,6 +163,7 @@ def infer_wav(mel_path, checkpoint_path, output_dir, batch_size):
 
     inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation=nv_wavenet.Impl.AUTO)
 
+    print("Output wave generated")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -176,10 +177,10 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--group_name', type=str, default='',
                         help='name of group for distributed')
 
-    parser.add_argument('-c', "--checkpoint_path", default='./checkpoints/wavenet_4000')
-    parser.add_argument('-o', "--output_dir", default='./outdir')
+    parser.add_argument('-c', "--checkpoint_path", default='./checkpoints/wavenet_250000')
+    parser.add_argument('-o', "--output_dir", default='./output')
     parser.add_argument('-b', "--batch_size", default=1)
-    parser.add_argument('-i', "--implementation", type=str, default="auto",
+    parser.add_argument('-i', "--implementation", type=str, default="persistent",
                         help="""Which implementation of NV-WaveNet to use.
                             Takes values of single, dual, or persistent""")
 

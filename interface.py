@@ -95,7 +95,7 @@ def inference_mel(checkpoint_path):
     model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(checkpoint_path)['state_dict'].items()})
     _ = model.eval()
 
-    text = "Fake it till you make it!"
+    text = "Tonight is gona be a good night. Tonight is gonna be a good night."
     sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
     sequence = torch.autograd.Variable(torch.from_numpy(sequence)).cuda().long()
 
@@ -104,9 +104,7 @@ def inference_mel(checkpoint_path):
     mel = mel.reshape(80, mel.shape[2])
     mel = mel.data
 
-
-
-    filename = 'mel/text_to_mel.pt'
+    filename = 'text_to_mel.pt'
     mel = torch.save(mel, filename)
 
     return mel
@@ -152,9 +150,8 @@ if __name__ == "__main__":
                         help='directory to save checkpoints', default="./output")
     parser.add_argument('-l', '--log_directory', type=str,
                         help='directory to save tensorboard logs',default="./logdir")
-    parser.add_argument('-c', '--checkpoint_path', type=str, default='./checkpoints/checkpoint_0',
+    parser.add_argument('-c', '--checkpoint_path', type=str, default='./checkpoints/tacotron2_statedict.pt',
                         required=False, help='checkpoint path')
-
     args = parser.parse_args()
 
 
