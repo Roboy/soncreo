@@ -1,44 +1,24 @@
 import sys
+sys.path.insert(0,'./nv-wavenet/pytorch')
 
-
-print(sys.path)
 import os
 import json
-
-
 import argparse
 import torch
+import pyaudio
+import wave
 
 #=====START: ADDED FOR DISTRIBUTED======4
 #from distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
 #from torch.utils.data.distributed import DistributedSampler
 #=====END:   ADDED FOR DISTRIBUTED======
-print(os.getcwd())
+
 from torch.utils.data import DataLoader
 from wavenet import WaveNet
-
-
-
-
-#from mel2samp_onehot import Mel2SampOnehot
-#from utils import to_gpu
-
-
-
-
+from mel2samp_onehot import Mel2SampOnehot
+from utils import to_gpu
 from inference import main as inf_main
 import nv_wavenet
-
-#from abc import ABC,abstractmethod
-
-sys.path.insert(0,'./nv-wavenet/pytorch')
-
-
-
-
-import numpy as np
-import pyaudio
-import wave
 
 class CrossEntropyLoss(torch.nn.Module):
     def __init__(self):
@@ -159,9 +139,21 @@ def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rat
 
             iteration += 1
 
-def infer_wav(mel_path, checkpoint_path, output_dir, batch_size):
-    sys.path.remove('./tacotron2')
-    inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation=nv_wavenet.Impl.AUTO)
+def infer_wav(mel_path, checkpoint_path, output_dir, batch_size, implementation):
+
+    if implementation == "auto":
+        implementation = nv_wavenet.Impl.AUTO
+    elif implementation == "single":
+        implementation = nv_wavenet.Impl.SINGLE_BLOCK
+    elif implementation == "dual":
+        implementation = nv_wavenet.Impl.DUAL_BLOCK
+    elif implementation == "persistent":
+        implementation = nv_wavenet.Impl.PERSISTENT
+    else:
+        raise ValueError("implementation must be one of auto, single, dual, or persistent")
+
+
+    inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation)
 
 def play_audio(fname):
     wf = wave.open(fname, 'rb')

@@ -3,9 +3,10 @@ import argparse
 import json
 import torch
 import sys
+import imp
+
 import os
-#from interface_wavenet import train_wav as nv
-#from interface import train_mel as tac2
+
 from abc import ABC,abstractmethod
 
 class AbstractClass(ABC):
@@ -15,9 +16,6 @@ class AbstractClass(ABC):
         pass
     @abstractmethod
     def train_wav(self):
-        pass
-    @abstractmethod
-    def inference_mel(self):
         pass
     @abstractmethod
     def inference_audio(self):
@@ -37,26 +35,14 @@ class Comb(AbstractClass):
         #sys.path.insert(0, './nvwavenet/pytorch')
         from interface_wavenet import train_wav as nv
         nv(train_config)
-    def inference_mel(self):
-        pass
-    def inference_audio(self, tac_model,wav_model, outdir, batch):
+
+    def inference_audio(self, text, tac_model,wav_model, outdir, batch, implementation):
+
         from interface import inference_mel
-        text="Why are robots shy? Because they have hardware and software but no underwear!"
-        mel = inference_mel(tac_model)
-
-        filename = 'mel/text_to_mel.pt'
-        mel = torch.save(mel, filename)
-
-
-        sys.path.insert(0, './nv-wavenet/pytorch')
-
-        print(os.getcwd())
-        print(sys.path)
+        mel = inference_mel(text, tac_model)
 
         from interface_wavenet import infer_wav
-
-
-        infer_wav(filename, wav_model, outdir, batch)
+        infer_wav(mel, wav_model, outdir, batch, implementation)
 
 
     def play_audio(self):
@@ -76,10 +62,10 @@ if __name__ == "__main__":
                         help='directory to save audio files', default="./output")
     parser.add_argument('-l', '--log_directory', type=str,
                         help='directory to save tensorboard logs', default="./logdir")
-    parser.add_argument('--checkpoint_tac', type=str, default="./checkpoints/checkpoint_0",
+    parser.add_argument('--checkpoint_tac', type=str, default="./checkpoints/tacotron2_statedict.pt",
                         required=False, help='checkpoint path')
 
-    parser.add_argument('--checkpoint_wav', default='./checkpoints/wavenet_4000')
+    parser.add_argument('--checkpoint_wav', default='./checkpoints/wavenet_450000')
     parser.add_argument('-b', '--batch_size', default=1)
     parser.add_argument('-i', '--implementation', type=str, default="auto",
                         help="""Which implementation of NV-WaveNet to use.
@@ -87,23 +73,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    with open(args.config) as f:
-        data = f.read()
-    config = json.loads(data)
-    train_config = config["train_config"]
-    print(train_config)
-    global data_config
-    data_config = config["data_config"]
-    global dist_config
-    dist_config = config["dist_config"]
-    global wavenet_config
-    wavenet_config = config["wavenet_config"]
-
-
-
-
     if args.train_wav:
         c.train_wav(train_config)
 
     if args.infer_sp:
-        c.inference_audio(args.checkpoint_tac, args.checkpoint_wav,args.output_directory,args.batch_size)
+        text = "Why are Robots shy? Because they have hardware and software but no underware!"
+        c.inference_audio(text,args.checkpoint_tac, args.checkpoint_wav,args.output_directory,args.batch_size, args.implementation)
