@@ -63,6 +63,8 @@ class CrossEntropyLoss(torch.nn.Module):
 def load_checkpoint(checkpoint_path, model, optimizer):
     assert os.path.isfile(checkpoint_path)
     checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
+    for key,value in checkpoint_dict.items():
+        print(key)
     iteration = checkpoint_dict['iteration']
     optimizer.load_state_dict(checkpoint_dict['optimizer'])
     model_for_loading = checkpoint_dict['model']
@@ -183,6 +185,7 @@ def play_audio(fname):
         data = wf.readframes(chunk)
 
         # cleanup stuff.
+    stream.stop_stream()
     stream.close()
     p.terminate()
 
@@ -191,7 +194,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav',type=bool, help='Argument to train mel spectogram to audio model',default=False)
-    parser.add_argument('--infer', type=bool, help = 'Boolean argument to infer audio from text', default=False)
+    parser.add_argument('--infer', type=bool, help = 'Boolean argument to infer audio from text', default=True)
     parser.add_argument('--config', type=str,
                         help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
     parser.add_argument('-r', '--rank', type=int, default=0,
@@ -199,13 +202,14 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--group_name', type=str, default='',
                         help='name of group for distributed')
 
-    parser.add_argument('-c', "--checkpoint_path", default='./checkpoints/wavenet_4000')
-    parser.add_argument('-o', "--output_dir", default='./outdir')
+    #cannot use this path for pretrained model update config file, only for inference
+    parser.add_argument('-c', "--checkpoint_path", default='./checkpoints/wavenet_450000')
+    parser.add_argument('-o', "--output_dir", default='./output')
     parser.add_argument('-b', "--batch_size", default=1)
     parser.add_argument('-i', "--implementation", type=str, default="auto",
                         help="""Which implementation of NV-WaveNet to use.
                             Takes values of single, dual, or persistent""")
-    parser.add_argument('--play', type=bool, default=True)
+    parser.add_argument('--play', type=bool, default=False)
 
     args = parser.parse_args()
     if args.implementation == "auto":
@@ -245,7 +249,7 @@ if __name__ == "__main__":
         train_wav(num_gpus, args.rank, args.group_name, **train_config)
 
     if args.infer:
-        mel_path = 'mel_files.txt'
+        mel_path = 'Shy.txt'
         infer_wav(mel_path,args.checkpoint_path, args.output_dir, args.batch_size)
 
     if args.play:
