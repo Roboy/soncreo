@@ -95,7 +95,9 @@ def inference_mel(checkpoint_path):
     model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(checkpoint_path)['state_dict'].items()})
     _ = model.eval()
 
+
     text = "Why are robots shy? Because they have hardware and software but no underwear!"
+
     sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
     sequence = torch.autograd.Variable(torch.from_numpy(sequence)).cuda().long()
 
@@ -105,8 +107,7 @@ def inference_mel(checkpoint_path):
     mel = mel.data
 
 
-
-    filename = 'Shy'
+    filename = 'text_to_mel'
     mel = torch.save(mel, filename)
 
     file = open(str(filename) + ".txt", 'w')
@@ -133,9 +134,10 @@ if __name__ == "__main__":
                         help='directory to save checkpoints', default="./output")
     parser.add_argument('-l', '--log_directory', type=str,
                         help='directory to save tensorboard logs',default="./logdir")
-    parser.add_argument('-c', '--checkpoint_path', type=str, default='./checkpoints/tac_pretrained_6000',
-                        required=False, help='checkpoint path')
 
+    parser.add_argument('-c', '--checkpoint_path', type=str, default='./checkpoints/tacotron2_statedict.pt',
+
+                        required=False, help='checkpoint path')
     args = parser.parse_args()
 
 

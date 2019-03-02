@@ -189,6 +189,7 @@ def play_audio(fname):
     stream.close()
     p.terminate()
 
+    print("Output wave generated")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -202,11 +203,12 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--group_name', type=str, default='',
                         help='name of group for distributed')
 
+
     #cannot use this path for pretrained model update config file, only for inference
     parser.add_argument('-c', "--checkpoint_path", default='./checkpoints/wavenet_450000')
     parser.add_argument('-o', "--output_dir", default='./output')
     parser.add_argument('-b', "--batch_size", default=1)
-    parser.add_argument('-i', "--implementation", type=str, default="auto",
+    parser.add_argument('-i', "--implementation", type=str, default="persistent",
                         help="""Which implementation of NV-WaveNet to use.
                             Takes values of single, dual, or persistent""")
     parser.add_argument('--play', type=bool, default=False)
