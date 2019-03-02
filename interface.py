@@ -107,14 +107,14 @@ def inference_mel(checkpoint_path):
     mel = mel.data
 
 
-    filename = 'text_to_mel'
+    filename = "text_to_mel"
     mel = torch.save(mel, filename)
 
     file = open(str(filename) + ".txt", 'w')
     file.write(filename)
     file.close()
 
-    return mel
+    return file.name
 
 def inference_audio():
     pass

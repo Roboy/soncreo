@@ -9,7 +9,6 @@ import json
 import argparse
 import torch
 
-sys.path.insert(0,'./nv-wavenet/pytorch')
 #=====START: ADDED FOR DISTRIBUTED======4
 #from distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
 #from torch.utils.data.distributed import DistributedSampler
@@ -21,8 +20,8 @@ from wavenet import WaveNet
 
 
 
-from mel2samp_onehot import Mel2SampOnehot
-from utils import to_gpu
+#from mel2samp_onehot import Mel2SampOnehot
+#from utils import to_gpu
 
 
 
@@ -32,6 +31,7 @@ import nv_wavenet
 
 #from abc import ABC,abstractmethod
 
+sys.path.insert(0,'./nv-wavenet/pytorch')
 
 
 
@@ -160,7 +160,7 @@ def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rat
             iteration += 1
 
 def infer_wav(mel_path, checkpoint_path, output_dir, batch_size):
-
+    sys.path.remove('./tacotron2')
     inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation=nv_wavenet.Impl.AUTO)
 
 def play_audio(fname):
