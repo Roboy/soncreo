@@ -4,7 +4,8 @@ import json
 import torch
 import sys
 import imp
-
+import wave
+import pyaudio
 import os
 
 from abc import ABC,abstractmethod
@@ -40,13 +41,42 @@ class Comb(AbstractClass):
 
         from interface import inference_mel
         mel = inference_mel(text, tac_model)
+        print(mel)
 
         from interface_wavenet import infer_wav
         infer_wav(mel, wav_model, outdir, batch, implementation)
 
+        fname = os.path.join(outdir, os.path.splitext(mel)[0] + "." + "wav")
+        self.play_audio(fname)
 
-    def play_audio(self):
-        pass
+
+    def play_audio(self,fname):
+        wf = wave.open(fname, 'rb')
+        p = pyaudio.PyAudio()
+
+        chunk = 1024
+
+        # open stream based on the wave object which has been input.
+        stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                        channels=wf.getnchannels(),
+                        rate=wf.getframerate(),
+                        output=True)
+
+        # read data (based on the chunk size)
+        data = wf.readframes(chunk)
+
+        # play stream (looping from beginning of file to the end)
+        while len(data) > 0 :
+            # writing to the stream is what *actually* plays the sound.
+            stream.write(data)
+            data = wf.readframes(chunk)
+
+            # cleanup stuff.
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+
+        print("Output wave generated")
 
 if __name__ == "__main__":
     c=Comb()
