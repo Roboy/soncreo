@@ -19,7 +19,7 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
 ## Training NV-Wavenet
   `python interface_wavenet.py -c nv-wavenet/pytorch/config.json`
 
-## Inference Text to Speech (in progress)
+## Inference Text to Speech
 
 #### To play audio from text
  `python combine.py --default=False --text='Write your text here' --checkpoint_tac='checkpoint/tac' --checkpoint_wav='checkpoints/wav' --batch=1 output_directory='./output --implementation="persistent"`
