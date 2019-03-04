@@ -5,7 +5,6 @@ import pyaudio
 import os
 
 from abc import ABC,abstractmethod
-
 class AbstractClass(ABC):
 
     @abstractmethod
@@ -23,18 +22,18 @@ class AbstractClass(ABC):
 
 class Comb(AbstractClass):
     def __init__(self):
-        pass
+        self.batch = 1
     def train_mel(self):
         #sys.path.insert(0, './tacotron2')
         from interface import train_mel as tac2
-        tac2('./outdir','./logdir',None)
+        tac2('./outdir', './logdir', None)
     def train_wav(self, train_config):
         #sys.path.insert(0, './nvwavenet/pytorch')
         from interface_wavenet import train_wav as nv
         nv(train_config)
 
-    def inference_audio(self, text, tac_model,wav_model, outdir, batch, implementation):
-
+    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_450000',
+                        outdir="./output", batch=1, implementation="persistent"):
         from interface import inference_mel
         mel = inference_mel(text, tac_model)
         print(mel)
@@ -62,7 +61,7 @@ class Comb(AbstractClass):
         data = wf.readframes(chunk)
 
         # play stream (looping from beginning of file to the end)
-        while len(data) > 0 :
+        while len(data) > 0:
             # writing to the stream is what *actually* plays the sound.
             stream.write(data)
             data = wf.readframes(chunk)
@@ -74,6 +73,7 @@ class Comb(AbstractClass):
 
         print("Output wave generated")
 
+
 if __name__ == "__main__":
     c=Comb()
     #c.train_mel()
@@ -82,26 +82,36 @@ if __name__ == "__main__":
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
     parser.add_argument('--infer_sp', type=bool, help='Argument to infer speech from text', default=True)
     parser.add_argument('--text', type=str, help='Text input for speech generation')
+
+    parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)
+
     parser.add_argument('--config', type=str,
                         help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
 
     parser.add_argument('-o', '--output_directory', type=str,
-                        help='directory to save audio files', default="./output")
+                        help='directory to save audio files')
     parser.add_argument('-l', '--log_directory', type=str,
                         help='directory to save tensorboard logs', default="./logdir")
-    parser.add_argument('--checkpoint_tac', type=str, default="./checkpoints/tacotron2_statedict.pt",
+    parser.add_argument('--checkpoint_tac', type=str,
                         required=False, help='checkpoint path')
 
-    parser.add_argument('--checkpoint_wav', default='./checkpoints/wavenet_450000')
-    parser.add_argument('-b', '--batch_size', default=1)
-    parser.add_argument('-i', '--implementation', type=str, default="auto",
+    parser.add_argument('--checkpoint_wav')
+    parser.add_argument('-b', '--batch_size')
+    parser.add_argument('-i', '--implementation', type=str,
                         help="""Which implementation of NV-WaveNet to use.
                                Takes values of single, dual, or persistent""")
 
+
     args = parser.parse_args()
 
-    if args.train_wav:
-        c.train_wav(train_config)
 
+<<<<<<< HEAD
     if args.infer_sp:
         c.inference_audio(args.text,args.checkpoint_tac, args.checkpoint_wav,args.output_directory,args.batch_size, args.implementation)
+=======
+    text = "Why is Roboy shy? Because he has hardware and software, but no underwear."
+    if args.default_vals:
+        c.inference_audio(text)
+    else:
+        c.inference_audio(text, args.checkpoint_tac, args.checkpoint_wav, args.output_directory, args.batch_size, args.implementation)
+>>>>>>> 4239e4f94f4eae3efc99ea3d30c5257fdc9626f9
