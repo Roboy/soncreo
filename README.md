@@ -11,7 +11,7 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
 1. Clone this repo: `git clone https://github.com/Roboy/soncreo`
 2. Initialize submodules: `git submodule init; git submodule update`
 3. Download and extract the [LJ Speech dataset](https://keithito.com/LJ-Speech-Dataset/)
-###To build nv-wavenet wrapper for pytorch
+### To build nv-wavenet wrapper for pytorch
 1. `cd nv-wavenet\pytorch`.
 2. Update the ``Makefile`` with the appropriate ``ARCH=sm_70``. Find your ARCH here: https://developer.nvidia.com/cuda-gpus. For example, NVIDIA Titan V has 7.0 compute capability; therefore, it's correct ``ARCH`` parameter is ``sm_70``.
 3. Build nv-wavenet and C-wrapper: `make`
