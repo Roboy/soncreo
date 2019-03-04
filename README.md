@@ -31,10 +31,15 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
 4. Run the following command: `python combine.py --default=True --text="Write your text here"`
 
 
+## (Optional) Connect the Text to Speech Inference via ROS2
+This repo contains a ROS2 Server (rospy client library) allows a ROS2 node to communicate.
+1. Starting the ros service: `python3 TTS_srv.py`
+2. Call the service via a client (simple example client for Roboy is [Pyroboy])
+
+
 
 
 [Pytorch 1.0]: https://github.com/pytorch/pytorch#installation
 [Tacotron2]: https://github.com/NVIDIA/tacotron2
-[NV-Wavenet]: https://github.com/NVIDIA/nv-wavenet/     
-
-
+[NV-Wavenet]: https://github.com/NVIDIA/nv-wavenet/
+[Pyroboy]: https://github.com/Roboy/pyroboy
