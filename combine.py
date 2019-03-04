@@ -1,9 +1,5 @@
 
 import argparse
-import json
-import torch
-import sys
-import imp
 import wave
 import pyaudio
 import os
@@ -85,6 +81,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
     parser.add_argument('--infer_sp', type=bool, help='Argument to infer speech from text', default=True)
+    parser.add_argument('--text', type=str, help='Text input for speech generation')
     parser.add_argument('--config', type=str,
                         help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
 
@@ -107,5 +104,4 @@ if __name__ == "__main__":
         c.train_wav(train_config)
 
     if args.infer_sp:
-        text = "Why are Robots shy? Because they have hardware and software but no underware!"
-        c.inference_audio(text,args.checkpoint_tac, args.checkpoint_wav,args.output_directory,args.batch_size, args.implementation)
+        c.inference_audio(args.text,args.checkpoint_tac, args.checkpoint_wav,args.output_directory,args.batch_size, args.implementation)
