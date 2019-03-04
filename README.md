@@ -13,14 +13,23 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
 3. Go to the [Tacotron2] and [NV-Wavenet] repositories and install requirements and datasets as mentioned there.
 
 ## Training Tacotron2
-1. `python interface.py --train_mel=True --output_directory=outdir --log_directory=logdir`
+1. `python interface.py --output_directory=outdir --log_directory=logdir`
 2. (OPTIONAL) `tensorboard --logdir=outdir/logdir`
 
 ## Training NV-Wavenet
-  `python interface.py --train_wav=True --output_directory=outdir --log_directory=logdir`
+  `python interface_wavenet.py -c nv-wavenet/pytorch/config.json`
 
 ## Inference Text to Speech (in progress)
-   `python interface.py --infer=True --text='Text to convert to audio' --output_directory=outdir --log_directory=logdir`
+
+  To play audio from text
+   `python combine.py --default=False --text='Write your text here' --checkpoint_tac='checkpoint/tac' --checkpoint_wav='checkpoints/wav' --batch=1 output_directory='./output    implementation="persistent"`
+   
+   To infer with our pretrained models for tacotron2 and wavenet
+   1.Create a checkpoints folders and copy tacotron2 and wavenet pretrained models
+   2.Create a folder called output (used to save the produced wav file
+     `mkdir outputs`
+   3.Run the following command
+    `python combine.py --default=True --text="Write your text here"`
 
 
 
