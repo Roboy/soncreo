@@ -25,9 +25,10 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
  `python combine.py --default=False --text='Write your text here' --checkpoint_tac='checkpoint/tac' --checkpoint_wav='checkpoints/wav' --batch=1 output_directory='./output --implementation="persistent"`
    
 #### To infer with our pretrained models for tacotron2 and wavenet
-1. Create a folder named checkpoint and copy tacotron2 and wavenet pretrained models: `mkdir checkpoints`
-2. Create a folder called output (used to save the produced wav file: `mkdir outputs`
-3. Run the following command: `python combine.py --default=True --text="Write your text here"`
+1. Download pretrained models [here](https://drive.google.com/drive/folders/1kwyITQMFvBaQaFTihTQ8DrL_CcVeFaRh?usp=sharing) 
+2. Create a folder named checkpoint and copy tacotron2 and wavenet pretrained models: `mkdir checkpoints`
+3. Create a folder called output (used to save the produced wav file: `mkdir outputs`
+4. Run the following command: `python combine.py --default=True --text="Write your text here"`
 
 
 
