@@ -26,7 +26,7 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
 ## Training NV-Wavenet
 Make a list of the file names to use for training/testing \
 `ls ljs_datset_folder/*.wav | tail -n+10 > train_files.txt`  \
-`ls ljs_dataset_folder/*.wav | head -n10 > test_files.txt`  \
+`ls ljs_dataset_folder/*.wav | head -n10 > test_files.txt`  \\
 Train the model \
   `python interface_wavenet.py -c nv-wavenet/pytorch/config.json`
 
