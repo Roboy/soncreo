@@ -10,13 +10,24 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
 ## Setup
 1. Clone this repo: `git clone https://github.com/Roboy/soncreo`
 2. Initialize submodules: `git submodule init; git submodule update`
-3. Go to the [Tacotron2] and [NV-Wavenet] repositories and install requirements and datasets as mentioned there.
+3. Download and extract the [LJ Speech dataset](https://keithito.com/LJ-Speech-Dataset/)
+###To build nv-wavenet wrapper for pytorch
+1. `cd nv-wavenet\pytorch`.
+2. Update the ``Makefile`` with the appropriate ``ARCH=sm_70``. Find your ARCH here: https://developer.nvidia.com/cuda-gpus. For example, NVIDIA Titan V has 7.0 compute capability; therefore, it's correct ``ARCH`` parameter is ``sm_70``.
+3. Build nv-wavenet and C-wrapper: `make`
+4. Install the PyTorch extension: `python build.py install`
 
 ## Training Tacotron2
-1. `python interface.py --output_directory=output --log_directory=logdir`
-2. (OPTIONAL) `tensorboard --logdir=outdir/logdir`
+1. `cd tacotron2` and  then update .wav paths: `sed -i -- 's,DUMMY,ljs_dataset_folder/wavs,g' filelists/*.txt`
+2. cd into parent Soncreo directory `cd ..`
+3. `python interface.py --output_directory=output --log_directory=logdir`
+4. (OPTIONAL) `tensorboard --logdir=outdir/logdir`
 
 ## Training NV-Wavenet
+Make a list of the file names to use for training/testing
+   `ls data/*.wav | tail -n+10 > train_files.txt` 
+   `ls data/*.wav | head -n10 > test_files.txt` 
+Train the model
   `python interface_wavenet.py -c nv-wavenet/pytorch/config.json`
 
 ## Inference Text to Speech
