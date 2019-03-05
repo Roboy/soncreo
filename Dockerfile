@@ -1,16 +1,8 @@
 # Dockerfile
 FROM sunitag/soncreo
 
-RUN apt-get update
-RUN apt-get upgrade -y
-
-#creating a new directory and copying your apllication inside the container
-RUN mkdir -p /tts
-WORKDIR /tts
-COPY . .
-
 ## Install Driver Nvidia
-
+WORKDIR /home/tmp
 
 
 ## Install Cuda
@@ -19,5 +11,7 @@ COPY . .
 ## Install CuDnn
 
 
-## Install Gitclone
-
+## Copying Git Code from Soncreo
+RUN git clone https://github.com/Roboy/soncreo.git
+RUN git submodule init
+RUN git submodule update
