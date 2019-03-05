@@ -1,6 +1,5 @@
 # Dockerfile
-
-FROM bouncy-roboy
+FROM sunitag/soncreo
 
 ## Install Driver Nvidia
 WORKDIR /home/tmp
