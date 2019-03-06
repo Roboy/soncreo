@@ -32,8 +32,8 @@ class Comb(AbstractClass):
         from interface_wavenet import train_wav as nv
         nv(train_config)
 
-    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_450000',
-                        outdir="./output", batch=1, implementation="persistent"):
+    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_500000',
+                        outdir="./output", batch=1, implementation="auto"):
         from interface import inference_mel
         mel = inference_mel(text, tac_model)
         print(mel)
@@ -76,12 +76,10 @@ class Comb(AbstractClass):
 
 if __name__ == "__main__":
     c=Comb()
-    #c.train_mel()
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
-    parser.add_argument('--infer_sp', type=bool, help='Argument to infer speech from text', default=True)
-    parser.add_argument('--text', type=str, help='Text input for speech generation')
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Fake it till you make it. Fake it till you make it")
 
     parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)
 
@@ -105,13 +103,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-<<<<<<< HEAD
-    if args.infer_sp:
-        c.inference_audio(args.text,args.checkpoint_tac, args.checkpoint_wav,args.output_directory,args.batch_size, args.implementation)
-=======
-    text = "Why is Roboy shy? Because he has hardware and software, but no underwear."
     if args.default_vals:
-        c.inference_audio(text)
+        c.inference_audio(args.text)
     else:
-        c.inference_audio(text, args.checkpoint_tac, args.checkpoint_wav, args.output_directory, args.batch_size, args.implementation)
->>>>>>> 4239e4f94f4eae3efc99ea3d30c5257fdc9626f9
+        c.inference_audio(args.text, args.checkpoint_tac, args.checkpoint_wav, args.output_directory, args.batch_size, args.implementation)
+
