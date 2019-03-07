@@ -34,6 +34,8 @@ sudo docker run --rm --runtime=nvidia -v /path/to/home/folder:path/to/guest/fold
 
 ## Useful commands
 - check existing dockers on your system: `docker images`
+- check history of a docker: `docker image history IMAGE`
 
 [Nvidia-Docker]: https://github.com/NVIDIA/nvidia-docker
 [Docker for Ubuntu]: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-16-04
+
