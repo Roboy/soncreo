@@ -1,46 +1,49 @@
-# Super simple example of a Dockerfile
-# Dockerfile
 FROM missxa/bouncy-roboy
+LABEL maintainer "NVIDIA CORPORATION <cudatools@nvidia.com>"
 
-# 
-RUN mkdir -p /tts
-WORKDIR /tts
-COPY .  .
+# CUDA 9.2 is not officially supported on ubuntu 18.04 yet, we use the ubuntu 17.10 repository for CUDA instead.
+RUN apt-get update && apt-get install -y --no-install-recommends gnupg2 curl ca-certificates && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1710/x86_64/7fa2af80.pub | apt-key add - && \
+    echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1710/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt-get purge --autoremove -y curl && \
+    rm -rf /var/lib/apt/lists/*
 
-## Install Driver Nvidia
-RUN echo "Install Driver Nvidia"
-RUN cd tts/
-RUN mkdir Downloads/
-RUN cd Downloads/
-RUN apt-get purge nvidia*
-RUN add-apt-repository ppa:graphics-drivers
+ENV CUDA_VERSION 9.2.148
+
+ENV CUDA_PKG_VERSION 9-2=$CUDA_VERSION-1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cuda-cudart-$CUDA_PKG_VERSION && \
+    ln -s cuda-9.2 /usr/local/cuda && \
+    rm -rf /var/lib/apt/lists/*
+
+# nvidia-docker 1.0
+LABEL com.nvidia.volumes.needed="nvidia_driver"
+LABEL com.nvidia.cuda.version="${CUDA_VERSION}"
+
+RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
+    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+
+ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+ENV NVIDIA_REQUIRE_CUDA "cuda>=9.2"
+
+# Install Cuda Toolkit (NVCC) and Requirements for Soncreo
 RUN apt-get update
-RUN apt-get install nvidia-410
-RUN lsmod | grep nvidia oder nvidia-smi
-
-#install cuda and cudnn
-
-
-RUN echo "Installing Cuda 10"
-RUN apt-get install gcc
-RUN dpkg -i cuda-repo-ubuntu1604-10-1-local-10.1.105-418.39_1.0-1_amd64.deb
-RUN apt-key add /var/cuda-repo-<version>/7fa2af80.pub
-RUN apt-get update
-RUN apt-get install cuda
-
-RUN nano ~/.bashrc
-RUN export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}} 
-
-RUN echo "Checking driver toolkit and cuda version"
-RUN cat /proc/driver/nvidia/version
-RUN nvcc -V
-
-RUN echo "installing CuDNN"
-RUN dpkg -i libcudnn7_7.5.0.56-1+cuda10.0_amd64.deb
-RUN dpkg -i libcudnn7-dev_7.5.0.56-1+cuda10.0_amd64.deb
-
+RUN apt install -y nvidia-cuda-toolkit
 
 ## Copying Git Code from Soncreo
-RUN git clone https://github.com/Roboy/soncreo.git
-RUN git submodule init
-RUN git submodule update
+#RUN apt install git
+#RUN git clone https://github.com/Roboy/soncreo.git
+#RUN cd soncreo
+#RUN git init
+#RUN git submodule init
+#RUN git submodule update
+RUN alias python=python3
+RUN pip3 install torch torchvision
+RUN apt install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg
+#RUN pip3 install -r requirements.txt 

@@ -32,6 +32,7 @@ class Comb(AbstractClass):
         from interface_wavenet import train_wav as nv
         nv(train_config)
 
+
     def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_640000',
                         outdir="./output", batch=1, implementation="auto"):
         from interface import inference_mel
@@ -54,6 +55,7 @@ class Comb(AbstractClass):
         chunk = 1024
 
         # open stream based on the wave object which has been input.
+
         stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                         channels=wf.getnchannels(),
                         rate=wf.getframerate(),
@@ -100,13 +102,11 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--implementation', type=str,
                         help="""Which implementation of NV-WaveNet to use.
                                Takes values of single, dual, or persistent""")
+    #parser.add_argument('--text', type=str, default="Hello.")
 
 
     args = parser.parse_args()
-
-
     if args.default_vals:
         c.inference_audio(args.text)
     else:
         c.inference_audio(args.text, args.checkpoint_tac, args.checkpoint_wav, args.output_directory, args.batch_size, args.implementation)
-

@@ -1,6 +1,6 @@
 #Start ROS2 service client for Soncreo ROS2
 from roboy_cognition_msgs.srv import Talk
-from combine import Comb
+from combine import Comb as C
 #g_node = None  # global Node
 #
 
@@ -14,15 +14,15 @@ class Soncreo_TTS():
         pass
 
     def talk_callback(request, response):
-        global g_node
+
         response.success = True  # evtl.  return {'success':True} from Cerevoice
         g_node.get_logger().info('Incoming Text: %s' % (request.text))
-        TTS.inference_audio(request.text)
+        C().inference_audio(request.text)
         return response
 
 
 def main(args=None):
-    TTS = Comb() #instance with inference audio function
+     #instance with inference audio function
 
     global g_node
     try:
@@ -38,11 +38,11 @@ def main(args=None):
     g_node = rclpy.create_node('minimal_service')
 
     # create service
-    srv = g_node.create_service(Talk, '/roboy/cognition/speech/synthesis/talk', Soncreo_TTS_class.talk_callback)
+    srv = g_node.create_service(Talk, '/roboy/cognition/speech/synthesis/talk', Soncreo_TTS.talk_callback)
     print("Ready to /roboy/cognition/speech/synthesis/talk")
 
     # Speech Synthesis is ready now.
-    TTS.inference_audio("Speech synthesis is ready now")
+    C().inference_audio("Speech synthesis is ready now")
 
     # loop RCLpy
     while rclpy.ok():
