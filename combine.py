@@ -37,7 +37,7 @@ class Comb(AbstractClass):
         nv(train_config)
 
     def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_450000',
-                        outdir="./output", batch=1, implementation="persistent"):
+                        outdir="./output", batch=1, implementation="auto"):
         from interface import inference_mel
         mel = inference_mel(text, tac_model)
         print(mel)
@@ -56,6 +56,9 @@ class Comb(AbstractClass):
         chunk = 1024
 
         # open stream based on the wave object which has been input.
+        for i in range(p.get_device_count()):
+            print(p.get_device_info_by_index(i))
+
         stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                         channels=wf.getnchannels(),
                         rate=wf.getframerate(),
@@ -98,13 +101,14 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--implementation', type=str,
                         help="""Which implementation of NV-WaveNet to use.
                                Takes values of single, dual, or persistent""")
+    parser.add_argument('--text', type=str, default="Hello.")
 
 
     args = parser.parse_args()
 
 
-    text = "Why is Roboy shy? Because he has hardware and software, but no underwear."
+    text = "Why is it so difficult to find a good doctor?"
     if args.default_vals:
-        c.inference_audio(text)
+        c.inference_audio(args.text)
     else:
-        c.inference_audio(text, args.checkpoint_tac, args.checkpoint_wav, args.output_directory, args.batch_size, args.implementation)
+        c.inference_audio(args.text, args.checkpoint_tac, args.checkpoint_wav, args.output_directory, args.batch_size, args.implementation)
