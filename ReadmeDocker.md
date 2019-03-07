@@ -1,4 +1,4 @@
-Requirements: Install Docker, location where Dockerfile ist, 
+Requirements: Install Docker ([Docker for Ubuntu])
 
 Tested environment: Ubuntu 16.04
 
@@ -32,3 +32,4 @@ sudo docker run --rm --runtime=nvidia -v /path/to/home/folder:path/to/guest/fold
 - check existing dockers on your system: `docker images`
 
 [Nvidia-Docker]: https://github.com/NVIDIA/nvidia-docker
+[Docker for Ubuntu]: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-16-04
