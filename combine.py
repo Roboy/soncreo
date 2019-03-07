@@ -33,7 +33,7 @@ class Comb(AbstractClass):
         nv(train_config)
 
 
-    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_500000',
+    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_450000',
                         outdir="./output", batch=1, implementation="auto"):
         from interface import inference_mel
         mel = inference_mel(text, tac_model)
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--implementation', type=str,
                         help="""Which implementation of NV-WaveNet to use.
                                Takes values of single, dual, or persistent""")
-    parser.add_argument('--text', type=str, default="Hello.")
+    #parser.add_argument('--text', type=str, default="Hello.")
 
 
     args = parser.parse_args()
