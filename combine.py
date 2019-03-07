@@ -1,9 +1,5 @@
 
 import argparse
-import json
-import torch
-import sys
-import imp
 import wave
 import pyaudio
 import os
@@ -36,7 +32,8 @@ class Comb(AbstractClass):
         from interface_wavenet import train_wav as nv
         nv(train_config)
 
-    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_450000',
+
+    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_500000',
                         outdir="./output", batch=1, implementation="auto"):
         from interface import inference_mel
         mel = inference_mel(text, tac_model)
@@ -83,9 +80,13 @@ class Comb(AbstractClass):
 
 if __name__ == "__main__":
     c=Comb()
-    #c.train_mel()
     parser = argparse.ArgumentParser()
+
+    parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Fake it till you make it. Fake it till you make it")
+
     parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)
+
     parser.add_argument('--config', type=str,
                         help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
 
@@ -105,9 +106,6 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
-
-
-    text = "Why is it so difficult to find a good doctor?"
     if args.default_vals:
         c.inference_audio(args.text)
     else:

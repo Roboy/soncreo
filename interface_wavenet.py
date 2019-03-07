@@ -161,36 +161,13 @@ def play_audio(fname):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--train_wav',type=bool, help='Argument to train mel spectogram to audio model',default=False)
-    parser.add_argument('--infer', type=bool, help = 'Boolean argument to infer audio from text', default=True)
     parser.add_argument('--config', type=str,
                         help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
     parser.add_argument('-r', '--rank', type=int, default=0,
                         help='rank of process for distributed')
     parser.add_argument('-g', '--group_name', type=str, default='',
                         help='name of group for distributed')
-
-
-    #cannot use this path for pretrained model update config file, only for inference
-    parser.add_argument('-c', "--checkpoint_path", default='./checkpoints/wavenet_450000')
-    parser.add_argument('-o', "--output_dir", default='./output')
-    parser.add_argument('-b', "--batch_size", default=1)
-    parser.add_argument('-i', "--implementation", type=str, default="persistent",
-                        help="""Which implementation of NV-WaveNet to use.
-                            Takes values of single, dual, or persistent""")
-    parser.add_argument('--play', type=bool, default=False)
-
     args = parser.parse_args()
-    if args.implementation == "auto":
-        implementation = nv_wavenet.Impl.AUTO
-    elif args.implementation == "single":
-        implementation = nv_wavenet.Impl.SINGLE_BLOCK
-    elif args.implementation == "dual":
-        implementation = nv_wavenet.Impl.DUAL_BLOCK
-    elif args.implementation == "persistent":
-        implementation = nv_wavenet.Impl.PERSISTENT
-    else:
-        raise ValueError("implementation must be one of auto, single, dual, or persistent")
 
 
     with open(args.config) as f:
@@ -214,14 +191,7 @@ if __name__ == "__main__":
     if num_gpus == 1 and args.rank != 0:
         raise Exception("Doing single GPU training on rank > 0")
 
-    if args.train_wav:
-        train_wav(num_gpus, args.rank, args.group_name, **train_config)
+    train_wav(num_gpus, args.rank, args.group_name, **train_config)
 
-    if args.infer:
-        mel_path = 'Shy.txt'
-        infer_wav(mel_path,args.checkpoint_path, args.output_dir, args.batch_size)
-
-    if args.play:
-        play_audio('outdir/text_to_mel.wav')
 
 

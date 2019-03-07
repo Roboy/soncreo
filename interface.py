@@ -2,8 +2,8 @@ import sys
 sys.path.insert(0,'./tacotron2')
 import numpy as np
 import torch
+import argparse
 
-#from abc import ABC,abstractmethod
 from tacotron2.train import train
 from tacotron2.hparams import create_hparams
 from tacotron2.train import load_model
@@ -83,6 +83,31 @@ def inference_mel(text,checkpoint_path):
 
     return file.name
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-o', '--output_directory', type=str,
+                        help='directory to save checkpoints')
+    parser.add_argument('-l', '--log_directory', type=str,
+                        help='directory to save tensorboard logs')
+    parser.add_argument('-c', '--checkpoint_path', type=str, default=None,
+                        required=False, help='checkpoint path')
+    parser.add_argument('--hparams', type=str,
+                        required=False, help='comma separated name=value pairs')
+
+
+    args = parser.parse_args()
+    hparams = create_hparams(args.hparams)
+
+    torch.backends.cudnn.enabled = hparams.cudnn_enabled
+    torch.backends.cudnn.benchmark = hparams.cudnn_benchmark
+
+    print("FP16 Run:", hparams.fp16_run)
+    print("Dynamic Loss Scaling:", hparams.dynamic_loss_scaling)
+    print("Distributed Run:", hparams.distributed_run)
+    print("cuDNN Enabled:", hparams.cudnn_enabled)
+    print("cuDNN Benchmark:", hparams.cudnn_benchmark)
+
+    train_mel(args.output_directory, args.log_directory, args.checkpoint_path)
 
 
 
