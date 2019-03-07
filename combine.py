@@ -32,15 +32,21 @@ class Comb(AbstractClass):
         from interface_wavenet import train_wav as nv
         nv(train_config)
 
+    def load_models(self, tac_model= "./checkpoints/tacotron2_statedict.pt",wav_model='./checkpoints/wavenet_640000'):
+        from interface import load_mel_model
+        mel_model = load_mel_model(tac_model)
+        from interface_wavenet import load_wav_model
+        nvwav_model = load_wav_model(wav_model)
+        return mel_model,nvwav_model
 
-    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_640000',
-                        outdir="./output", batch=1, implementation="auto"):
+    def inference_audio(self, text,mel_model,wav_model,outdir="./output", batch=1, implementation="auto"):
+
         from interface import inference_mel
-        mel = inference_mel(text, tac_model)
+        mel = inference_mel(text, mel_model)
         print(mel)
 
         from interface_wavenet import infer_wav
-        infer_wav(mel, wav_model, outdir, batch, implementation)
+        infer_wav(mel,wav_model[0],wav_model[1], outdir, batch, implementation)
 
         fname = os.path.join(outdir, os.path.splitext(mel)[0] + "." + "wav")
 
@@ -83,7 +89,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
-    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Why are robots shy? Because they have hardware and software but no underwear.")
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default="The team did some research and was able to get a evaluation license for testing it in my motor cortex also known as the FPGA, but they are still working on integrating it.")
+
 
     parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)
 
@@ -102,11 +109,13 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--implementation', type=str,
                         help="""Which implementation of NV-WaveNet to use.
                                Takes values of single, dual, or persistent""")
-    #parser.add_argument('--text', type=str, default="Hello.")
+    #parser.add_argument('--text', type=str, default="1It all started in October 2018 with a group of students.")
 
 
     args = parser.parse_args()
     if args.default_vals:
-        c.inference_audio(args.text)
+        mel_model,wav_model = c.load_models()
+        c.inference_audio(args.text, mel_model, wav_model)
     else:
-        c.inference_audio(args.text, args.checkpoint_tac, args.checkpoint_wav, args.output_directory, args.batch_size, args.implementation)
+        mel_model,wav_model = c.load_models(args.checkpoint_tac,args.checkpoint_wav)
+        c.inference_audio(args.text, mel_model, wav_model, args.output_directory, args.batch_size, args.implementation)

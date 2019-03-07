@@ -5,8 +5,10 @@ import os
 import json
 import argparse
 import torch
+import importlib
 import pyaudio
 import wave
+from scipy.io.wavfile import write
 
 #=====START: ADDED FOR DISTRIBUTED======4
 #from distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
@@ -17,8 +19,8 @@ from torch.utils.data import DataLoader
 from wavenet import WaveNet
 from mel2samp_onehot import Mel2SampOnehot
 from utils import to_gpu
-from inference import main as inf_main
 import nv_wavenet
+utils_nv= importlib.import_module("nv-wavenet.pytorch.utils")
 
 class CrossEntropyLoss(torch.nn.Module):
     def __init__(self):
@@ -38,7 +40,6 @@ class CrossEntropyLoss(torch.nn.Module):
         inputs = inputs.contiguous()
         inputs = inputs.view(-1, self.num_classes)
         return torch.nn.CrossEntropyLoss()(inputs, targets)
-
 
 def load_checkpoint(checkpoint_path, model, optimizer):
     assert os.path.isfile(checkpoint_path)
@@ -139,6 +140,8 @@ def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rat
 
             iteration += 1
 
+"""
+
 def infer_wav(mel_path, checkpoint_path, output_dir, batch_size, implementation):
 
     if implementation == "auto":
@@ -154,9 +157,42 @@ def infer_wav(mel_path, checkpoint_path, output_dir, batch_size, implementation)
 
 
     inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation)
+"""
+def load_wav_model(checkpoint_path):
 
-def play_audio(fname):
-    pass
+    model = torch.load(checkpoint_path)['model']
+    wavenet = nv_wavenet.NVWaveNet(**(model.export_weights()))
+    return model,wavenet
+
+def chunker(seq, size):
+    """
+    https://stackoverflow.com/a/434328
+    """
+    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+
+def infer_wav(mel_files, model,wavenet, output_dir, batch_size, implementation):
+
+    mel_files = utils_nv.files_to_list(mel_files)
+
+    for files in chunker(mel_files, batch_size):
+        mels = []
+        for file_path in files:
+            print(file_path)
+            mel = torch.load(file_path)
+            mel = utils_nv.to_gpu(mel)
+            mels.append(torch.unsqueeze(mel, 0))
+        cond_input = model.get_cond_input(torch.cat(mels, 0))
+        audio_data = wavenet.infer(cond_input, implementation)
+
+        for i, file_path in enumerate(files):
+            file_name = os.path.splitext(os.path.basename(file_path))[0]
+
+            audio = utils_nv.mu_law_decode_numpy(audio_data[i, :].cpu().numpy(), wavenet.A)
+            audio = utils_nv.MAX_WAV_VALUE * audio
+            wavdata = audio.astype('int16')
+            write("{}/{}.wav".format(output_dir, file_name),
+                  16000, wavdata)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

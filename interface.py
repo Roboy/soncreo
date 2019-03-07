@@ -46,10 +46,7 @@ def train_mel(outdir,logdir,checkpoint):
     train(outdir, logdir, checkpoint,
           True, 1, 0, False, hparams)
 
-def inference_mel(text,checkpoint_path):
-    """"
-    Performs conversion from text to mel spectogram
-    """
+def load_mel_model(checkpoint_path):
     hparams = create_hparams("distributed_run=False,mask_padding=False")
     hparams.sampling_rate = 22050
     hparams.filter_length = 1024
@@ -64,7 +61,12 @@ def inference_mel(text,checkpoint_path):
 
     model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(checkpoint_path)['state_dict'].items()})
     _ = model.eval()
+    return model
 
+def inference_mel(text,model):
+    """"
+    Performs conversion from text to mel spectogram
+    """
     sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
     sequence = torch.autograd.Variable(torch.from_numpy(sequence)).cuda().long()
 
