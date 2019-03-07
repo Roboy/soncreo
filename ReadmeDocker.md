@@ -27,7 +27,7 @@ sudo docker build --no-cache -t new-local-docker-name .
 ```
 
 ## Run the docker 
-Run docker with `--runtime=nvidia` and shared folder '-v' (e.g. `sudo docker run --rm --runtime=nvidia -v /home/roboy/3M/soncreo:/tts  -ti ubuntucu9:v1 bash`)
+Run docker with `--runtime=nvidia` and shared folder `-v` and audio output device `--device` and same network `--network=host` (e.g. `sudo docker run --rm --runtime=nvidia -v /home/roboy/3M/soncreo:/tts --network=host --device /dev/snd -ti ubuntucu9:v1 bash`)
 ```
 sudo docker run --rm --runtime=nvidia -v /path/to/home/folder:path/to/guest/folder -ti new-local-docker-name bash
 ```
