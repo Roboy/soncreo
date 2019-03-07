@@ -7,8 +7,4 @@ scipy==1.0.0
 tensorboardX==1.1
 Unidecode==1.0.22
 pillow
-<<<<<<< HEAD
-=======
-torch==1.0.0
->>>>>>> 8c5e28cd4d23a0437e2a4be77dcaaea7e3f56150
 pyaudio
