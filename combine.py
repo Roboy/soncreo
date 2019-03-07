@@ -1,8 +1,8 @@
-
 import argparse
 import wave
 import pyaudio
 import os
+#from logmmse import logmmse_from_file
 
 from abc import ABC,abstractmethod
 class AbstractClass(ABC):
@@ -32,7 +32,7 @@ class Comb(AbstractClass):
         from interface_wavenet import train_wav as nv
         nv(train_config)
 
-    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_500000',
+    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_640000',
                         outdir="./output", batch=1, implementation="auto"):
         from interface import inference_mel
         mel = inference_mel(text, tac_model)
@@ -42,6 +42,8 @@ class Comb(AbstractClass):
         infer_wav(mel, wav_model, outdir, batch, implementation)
 
         fname = os.path.join(outdir, os.path.splitext(mel)[0] + "." + "wav")
+
+        #out = logmmse_from_file(fname,output_file="denoised")
         self.play_audio(fname)
 
 
@@ -79,7 +81,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
-    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Fake it till you make it. Fake it till you make it")
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Why are robots shy? Because they have hardware and software but no underwear.")
 
     parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)
 
