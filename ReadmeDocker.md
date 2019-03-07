@@ -1,4 +1,4 @@
-Requirements: Install Docker, location where Dockerfile ist, Install Nvida-Docker [Nvidia-Docker]
+Requirements: Install Docker, location where Dockerfile ist, 
 
 Tested environment: Ubuntu 16.04
 
@@ -17,7 +17,7 @@ sudo apt-get install -y nvidia-docker2
 sudo pkill -SIGHUP dockerd
 
 ## Build a new docker 
-Build a docker with the `dockerfile` provided. Replace `new-local-docker-name` with a name of your choice (e.g. `ubuntucuda:latest`).
+Build a docker with the `dockerfile` provided. Execute in the folder where the `dockerfile` is. Replace `new-local-docker-name` with a name of your choice (e.g. `ubuntucuda:latest`).
 ```
 sudo docker build --no-cache -t new-local-docker-name .
 ```
@@ -29,6 +29,6 @@ sudo docker run --rm --runtime=nvidia -v /path/to/home/folder:path/to/guest/fold
 ```
 
 ## Useful commands
-- check existing dockers on your system: 'docker images'
+- check existing dockers on your system: `docker images`
 
 [Nvidia-Docker]: https://github.com/NVIDIA/nvidia-docker
