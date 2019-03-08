@@ -19,7 +19,7 @@ class Soncreo_TTS(Node):
 
         response.success = True  # evtl.  return {'success':True}
         self.get_logger().info('Incoming Text: %s' % (request.text))
-        self.c.inference_audio(request)
+        self.c.inference_audio(request.text)
         return response
 
 
