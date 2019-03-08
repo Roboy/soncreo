@@ -3,6 +3,7 @@ import wave
 import pyaudio
 import os
 #from logmmse import logmmse_from_file
+import time
 
 from abc import ABC,abstractmethod
 class AbstractClass(ABC):
@@ -41,6 +42,7 @@ class Comb(AbstractClass):
 
     def inference_audio(self, text,mel_model,wav_model,outdir="./output", batch=1, implementation="auto"):
 
+        start = time.time()
         from interface import inference_mel
         mel = inference_mel(text, mel_model)
         print(mel)
@@ -50,9 +52,14 @@ class Comb(AbstractClass):
 
         fname = os.path.join(outdir, os.path.splitext(mel)[0] + "." + "wav")
 
+        end = time.time()
+        print("Inference time", end-start)
         #out = logmmse_from_file(fname,output_file="denoised")
-        self.play_audio(fname)
 
+        start_a =time.time()
+        self.play_audio(fname)
+        end_a = time.time()
+        print("Audio playback time", end_a-start_a)
 
     def play_audio(self,fname):
         wf = wave.open(fname, 'rb')
@@ -89,7 +96,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
-    parser.add_argument('--text', type=str, help='Text input for speech generation', default="The team did some research and was able to get a evaluation license for testing it in my motor cortex also known as the FPGA, but they are still working on integrating it.")
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Why are robots shy? Because they have hardware and software but no underwear.")
 
 
     parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)

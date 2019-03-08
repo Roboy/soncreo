@@ -173,6 +173,16 @@ def chunker(seq, size):
 
 def infer_wav(mel_files, model,wavenet, output_dir, batch_size, implementation):
 
+    if implementation == "auto":
+        implementation = nv_wavenet.Impl.AUTO
+    elif implementation == "single":
+        implementation = nv_wavenet.Impl.SINGLE_BLOCK
+    elif implementation == "dual":
+        implementation = nv_wavenet.Impl.DUAL_BLOCK
+    elif implementation == "persistent":
+        implementation = nv_wavenet.Impl.PERSISTENT
+    else:
+        raise ValueError("implementation must be one of auto, single, dual, or persistent")
     mel_files = utils_nv.files_to_list(mel_files)
 
     for files in chunker(mel_files, batch_size):
