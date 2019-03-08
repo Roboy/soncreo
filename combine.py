@@ -28,8 +28,14 @@ class Comb(AbstractClass):
         else:
             self.mel_model,self.wav_model = self.load_models(tac_model,wav_model)
 
-    def preprocess(self):
-        pass
+    def preprocess(self, text):
+
+        if (text[len(text) - 1] == '.' or text[len(text) - 1] == '?' or text[len(text) - 1] == '!'):
+            text = text
+        else:
+            text = text + '.'
+        print(text)
+        return text
 
     def load_models(self, tac_model= "./checkpoints/tacotron2_statedict.pt",wav_model='./checkpoints/wavenet_640000'):
         from interface import load_mel_model
@@ -40,6 +46,7 @@ class Comb(AbstractClass):
 
     def inference_audio(self, text,outdir="./output", batch=1, implementation="auto"):
 
+        text = self.preprocess(text)
         start = time.time()
         from interface import inference_mel
         mel = inference_mel(text, self.mel_model)
