@@ -9,16 +9,16 @@ from abc import ABC,abstractmethod
 class AbstractClass(ABC):
 
     @abstractmethod
-    def train_mel(self):
-        pass
-    @abstractmethod
-    def train_wav(self):
+    def load_models(self):
         pass
     @abstractmethod
     def inference_audio(self):
         pass
     @abstractmethod
     def play_audio(self):
+        pass
+    @abstractmethod
+    def preprocess(self):
         pass
 
 class Comb(AbstractClass):
@@ -28,14 +28,8 @@ class Comb(AbstractClass):
         else:
             self.mel_model,self.wav_model = self.load_models(tac_model,wav_model)
 
-    def train_mel(self):
-        #sys.path.insert(0, './tacotron2')
-        from interface import train_mel as tac2
-        tac2('./outdir', './logdir', None)
-    def train_wav(self, train_config):
-        #sys.path.insert(0, './nvwavenet/pytorch')
-        from interface_wavenet import train_wav as nv
-        nv(train_config)
+    def preprocess(self):
+        pass
 
     def load_models(self, tac_model= "./checkpoints/tacotron2_statedict.pt",wav_model='./checkpoints/wavenet_640000'):
         from interface import load_mel_model
@@ -126,10 +120,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     c = Comb(args.checkpoint_tac,args.checkpoint_wav)
     if args.default_vals:
-        for i in range(3):
-            start_t=time.time()
-            c.inference_audio(args.text)
-            end_t=time.time()
-            print("Total",end_t-start_t)
+        start_t=time.time()
+        c.inference_audio(args.text)
+        end_t=time.time()
+        print("Total",end_t-start_t)
     else:
         c.inference_audio(args.text, args.output_directory, args.batch_size, args.implementation)
