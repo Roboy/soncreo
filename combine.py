@@ -22,8 +22,12 @@ class AbstractClass(ABC):
         pass
 
 class Comb(AbstractClass):
-    def __init__(self):
-        self.batch = 1
+    def __init__(self, tac_model=None, wav_model=None):
+        if tac_model==None and wav_model==None:
+            self.mel_model,self.wav_model = self.load_models()
+        else:
+            self.mel_model,self.wav_model = self.load_models(tac_model,wav_model)
+
     def train_mel(self):
         #sys.path.insert(0, './tacotron2')
         from interface import train_mel as tac2
@@ -40,15 +44,15 @@ class Comb(AbstractClass):
         nvwav_model = load_wav_model(wav_model)
         return mel_model,nvwav_model
 
-    def inference_audio(self, text,mel_model,wav_model,outdir="./output", batch=1, implementation="auto"):
+    def inference_audio(self, text,outdir="./output", batch=1, implementation="auto"):
 
         start = time.time()
         from interface import inference_mel
-        mel = inference_mel(text, mel_model)
+        mel = inference_mel(text, self.mel_model)
         print(mel)
 
         from interface_wavenet import infer_wav
-        infer_wav(mel,wav_model[0],wav_model[1], outdir, batch, implementation)
+        infer_wav(mel,self.wav_model[0],self.wav_model[1], outdir, batch, implementation)
 
         fname = os.path.join(outdir, os.path.splitext(mel)[0] + "." + "wav")
 
@@ -92,7 +96,7 @@ class Comb(AbstractClass):
 
 
 if __name__ == "__main__":
-    c=Comb()
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
@@ -109,9 +113,9 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--log_directory', type=str,
                         help='directory to save tensorboard logs', default="./logdir")
     parser.add_argument('--checkpoint_tac', type=str,
-                        required=False, help='checkpoint path')
+                        required=False, help='Tacotron2 checkpoint path', default=None)
 
-    parser.add_argument('--checkpoint_wav')
+    parser.add_argument('--checkpoint_wav', type=str, required=False, help="Wavenet checkpoint path", default=None)
     parser.add_argument('-b', '--batch_size')
     parser.add_argument('-i', '--implementation', type=str,
                         help="""Which implementation of NV-WaveNet to use.
@@ -120,9 +124,12 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
+    c = Comb(args.checkpoint_tac,args.checkpoint_wav)
     if args.default_vals:
-        mel_model,wav_model = c.load_models()
-        c.inference_audio(args.text, mel_model, wav_model)
+        for i in range(3):
+            start_t=time.time()
+            c.inference_audio(args.text)
+            end_t=time.time()
+            print("Total",end_t-start_t)
     else:
-        mel_model,wav_model = c.load_models(args.checkpoint_tac,args.checkpoint_wav)
-        c.inference_audio(args.text, mel_model, wav_model, args.output_directory, args.batch_size, args.implementation)
+        c.inference_audio(args.text, args.output_directory, args.batch_size, args.implementation)
