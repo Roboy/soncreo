@@ -27,7 +27,6 @@ def main(args=None):
     rclpy.init(args=args)
 
     soncreo_tts = Soncreo_TTS()
-    soncreo_tts.talk_callback("hello there.")
 
     rclpy.spin(soncreo_tts)
 

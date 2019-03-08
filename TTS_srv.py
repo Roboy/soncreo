@@ -1,9 +1,6 @@
 #Start ROS2 service client for Soncreo ROS2
 from combine import Comb
 #g_node = None  # global Node
-#
-
-
 
 # Channel event callback function
 class Soncreo_TTS():
