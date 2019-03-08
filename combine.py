@@ -28,8 +28,14 @@ class Comb(AbstractClass):
         else:
             self.mel_model,self.wav_model = self.load_models(tac_model,wav_model)
 
-    def preprocess(self):
-        pass
+    def preprocess(self,text):
+
+        if(text[len(text)-1] == '.' or text[len(text)-1] == '?' or text[len(text)-1] == '!'):
+            text = text
+        else:
+            text = text +'.'
+        print(text)
+        return text
 
     def load_models(self, tac_model= "./checkpoints/tacotron2_statedict.pt",wav_model='./checkpoints/wavenet_640000'):
         from interface import load_mel_model
@@ -39,6 +45,8 @@ class Comb(AbstractClass):
         return mel_model,nvwav_model
 
     def inference_audio(self, text,outdir="./output", batch=1, implementation="auto"):
+
+        text = self.preprocess(text)
 
         start = time.time()
         from interface import inference_mel
@@ -94,7 +102,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
-    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Hello.")
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Hello")
 
 
     parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)
