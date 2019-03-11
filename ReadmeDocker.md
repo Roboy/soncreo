@@ -5,7 +5,7 @@ Tested environment: Ubuntu 16.04
 ## Install NVIDIA Container Runtime for Docker 
 Install NVIDIA Container Runtime for Docker [Nvidia-Docker] on your home system
 
-# If you have nvidia-docker 1.0 installed: we need to remove it and all existing GPU containers
+### If you have nvidia-docker 1.0 installed: we need to remove it and all existing GPU containers
 ```
 docker volume ls -q -f driver=nvidia-docker | xargs -r -I{} -n1 docker ps -q -a -f volume={} | xargs -r docker rm -f
 sudo apt-get purge -y nvidia-docker
