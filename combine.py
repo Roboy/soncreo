@@ -101,7 +101,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
-    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Hello.")
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Why are Robots shy? Because they have hardware and software but no underwear.")
 
 
     parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)

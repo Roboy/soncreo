@@ -9,26 +9,6 @@ from tacotron2.hparams import create_hparams
 from tacotron2.train import load_model
 from tacotron2.text import text_to_sequence
 
-'''
-
-class AbstractClass(ABC):
-
-    @abstractmethod
-    def train_mel(self):
-        pass
-    @abstractmethod
-    def train_wav(self):
-        pass
-    @abstractmethod
-    def inference_mel(self):
-        pass
-    @abstractmethod
-    def inference_audio(self):
-        pass
-    @abstractmethod
-    def play_audio(self):
-        pass
-'''
 
 def train_mel(outdir,logdir,checkpoint):
 
