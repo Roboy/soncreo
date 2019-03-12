@@ -47,9 +47,9 @@ Train the model \
 This repo contains a ROS2 Server (rospy client library) allows a ROS2 node to communicate.
 1. Starting the ros service: `python3 TTS_srv.py`
 2. Call the service via a client (simple example client for Roboy is [Pyroboy])
-   Run the following
-   `import pyroboy`
-   `pyroboy.say("Input text string")`
+   Run the following from the client \
+   `import pyroboy` \
+   `pyroboy.say("Input text string")` \
 
 
 
