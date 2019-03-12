@@ -207,7 +207,7 @@ def infer_wav(mel_files, model,wavenet, output_dir, batch_size, implementation):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--config', type=str,
+    parser.add_argument('-c','--config', type=str,
                         help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
     parser.add_argument('-r', '--rank', type=int, default=0,
                         help='rank of process for distributed')
