@@ -49,7 +49,7 @@ This repo contains a ROS2 Server (rospy client library) allows a ROS2 node to co
 2. Call the service via a client (simple example client for Roboy is [Pyroboy])
    Run the following from the client \
    `import pyroboy` \
-   `pyroboy.say("Input text string")` \
+   `pyroboy.say("Input text string")` 
 
 
 
