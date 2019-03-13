@@ -1,6 +1,6 @@
 Requirements: Install Docker ([Docker for Ubuntu])
 
-Tested environment: Ubuntu 16.04
+Tested Host environment: Ubuntu 16.04, GPU Geforce 1080 Ti
 
 ## Install NVIDIA Container Runtime for Docker 
 Install NVIDIA Container Runtime for Docker [Nvidia-Docker] on your home system
@@ -27,7 +27,7 @@ sudo pkill -SIGHUP dockerd
 ```
 
 ## Build a new docker 
-Build a docker with the `dockerfile` provided. Execute in the folder where the `dockerfile` is. Replace `new-local-docker-name` with a name of your choice (e.g. `ubuntucuda:latest`).
+Build a docker with the `dockerfile` provided. Execute in the folder where the `dockerfile` is (`cd docker`). Replace `new-local-docker-name` with a name of your choice (e.g. `sharcc92/soncreo:latest`).
 ```
 sudo docker build --no-cache -t new-local-docker-name .
 ```

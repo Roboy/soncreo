@@ -7,8 +7,20 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
 1. NVIDIA GPU + CUDA cuDNN (tested for version CUDA 9.0 and above)
 2. GPU architecture >= smi 61. Check your GPU architecture [here](https://developer.nvidia.com/cuda-gpus)
 3. [Pytorch 1.0]
+4. (Optional) ROS2 bouncy (for communication via ROS2)
 
-## Setup
+## Setup - Installation of Prerequisites
+You can install the Prerequisites on your own or use our Docker Instruction which provides you with a fully installed system on Docker.
+### Option 1:  Own Installation
+Setup your system by installing current GPU driver, Cuda and cuDNN. Afterwards install the dependencies.
+```
+pip install -r requirements.txt
+```
+### Option 2: Docker
+Our Docker image can be downloaded via (`docker pull sharcc92/soncreo:latest`), but we recommend to setup your own docker via our provided dockerfile. 
+The installation instruction can be found in the README-file in the folder `docker`.
+
+## Setup - Soncreo Repo
 1. Clone this repo: `git clone https://github.com/Roboy/soncreo`
 2. Initialize submodules: `git submodule init; git submodule update`
 3. Download and extract the [LJ Speech dataset](https://keithito.com/LJ-Speech-Dataset/)
