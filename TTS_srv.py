@@ -3,6 +3,7 @@ from roboy_cognition_msgs.msg import SpeechSynthesis
 from combine import Comb
 import rclpy
 from rclpy.node import Node
+import json
 
 
 class Soncreo_TTS(Node):
@@ -13,9 +14,8 @@ class Soncreo_TTS(Node):
         self.srv = self.create_service(Talk, '/roboy/cognition/speech/synthesis/talk', self.talk_callback)
         print("Ready to /roboy/cognition/speech/synthesis/talk")
 
-        self.c=Comb()
-        print("speech synthesis is ready now")
-        self.c.inference_audio("Speech synthesis is ready now")
+        self.c=Comb('checkpoints/tacotron2_statedict.pt','checkpoints/wavenet_640000')
+        self.c.inference_audio("Speech synthesis is ready now", data["output_directory"],data["batch"],data["implementation"])
 
     def talk_callback(self, request, response):
         response.success = True  # evtl.  return {'success':True}
@@ -24,7 +24,7 @@ class Soncreo_TTS(Node):
         msg.duration = 5
         msg.phoneme = 'o'
         self.publisher.publish(msg)
-        self.c.inference_audio(request.text)
+        self.c.inference_audio(request.text,data["output_directory"],data["batch"],data["implementation"])
         msg.phoneme = 'sil'
         msg.duration = 0
         self.publisher.publish(msg)
@@ -32,6 +32,10 @@ class Soncreo_TTS(Node):
 
 
 def main(args=None):
+
+    global data
+    with open('config.json') as json_data_file:
+        data = json.load(json_data_file)
     rclpy.init(args=args)
 
     soncreo_tts = Soncreo_TTS()

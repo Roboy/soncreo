@@ -2,7 +2,7 @@ import argparse
 import wave
 import pyaudio
 import os
-#from logmmse import logmmse_from_file
+import json
 import time
 
 from abc import ABC,abstractmethod
@@ -22,11 +22,8 @@ class AbstractClass(ABC):
         pass
 
 class Comb(AbstractClass):
-    def __init__(self, tac_model=None, wav_model=None):
-        if tac_model==None and wav_model==None:
-            self.mel_model,self.wav_model = self.load_models()
-        else:
-            self.mel_model,self.wav_model = self.load_models(tac_model,wav_model)
+    def __init__(self, tac_model,wav_model):
+        self.mel_model,self.wav_model = self.load_models(tac_model,wav_model)
 
     def preprocess(self, text):
 
@@ -44,7 +41,7 @@ class Comb(AbstractClass):
         nvwav_model = load_wav_model(wav_model)
         return mel_model,nvwav_model
 
-    def inference_audio(self, text,outdir="./output", batch=1, implementation="auto"):
+    def inference_audio(self, text,outdir, batch, implementation):
 
         text = self.preprocess(text)
         start = time.time()
@@ -98,38 +95,30 @@ class Comb(AbstractClass):
 
 if __name__ == "__main__":
 
+
+
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
-    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Why are Robots shy? Because they have hardware and software but no underwear.")
-
-
-    parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)
-
-    parser.add_argument('--config', type=str,
-                        help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
-
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default=data["text"])
     parser.add_argument('-o', '--output_directory', type=str,
-                        help='directory to save audio files')
+                        help='directory to save audio files', default= data["output_directory"])
     parser.add_argument('-l', '--log_directory', type=str,
-                        help='directory to save tensorboard logs', default="./logdir")
+                        help='directory to save tensorboard logs', default=data["log_directory"])
     parser.add_argument('--checkpoint_tac', type=str,
-                        required=False, help='Tacotron2 checkpoint path', default=None)
+                        required=False, help='Tacotron2 checkpoint path', default=data["checkpoint_tac"])
 
-    parser.add_argument('--checkpoint_wav', type=str, required=False, help="Wavenet checkpoint path", default=None)
-    parser.add_argument('-b', '--batch_size')
+    parser.add_argument('--checkpoint_wav', type=str, required=False, help="Wavenet checkpoint path", default=data["checkpoint_wav"])
+    parser.add_argument('-b', '--batch_size', help= "batch size for inference", default=data["batch"])
     parser.add_argument('-i', '--implementation', type=str,
                         help="""Which implementation of NV-WaveNet to use.
-                               Takes values of single, dual, or persistent""")
-    #parser.add_argument('--text', type=str, default="1It all started in October 2018 with a group of students.")
-
+                               Takes values of single, dual, or persistent""", default=data["implementation"])
 
     args = parser.parse_args()
+
     c = Comb(args.checkpoint_tac,args.checkpoint_wav)
-    if args.default_vals:
-        start_t=time.time()
-        c.inference_audio(args.text)
-        end_t=time.time()
-        print("Total",end_t-start_t)
-    else:
-        c.inference_audio(args.text, args.output_directory, args.batch_size, args.implementation)
+
+    start_t=time.time()
+    c.inference_audio(args.text,args.output_directory, args.batch_size, args.implementation)
+    end_t=time.time()
+    print("Total",end_t-start_t)
+
