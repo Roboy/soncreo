@@ -4,8 +4,9 @@ Roboy Soncreo (from Lat. *sonus* - sound and *creō* - I create, make, produce) 
 A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide audio synthesis from text. It also supports interfacing using ROS2 (not implemented yet)
 
 ## Pre-requisites
-1. NVIDIA GPU + CUDA cuDNN
-2. [Pytorch 1.0]
+1. NVIDIA GPU + CUDA cuDNN (tested for version CUDA 9.0 and above)
+2. GPU architecture >= smi 61. Check your GPU architecture [here](https://developer.nvidia.com/cuda-gpus)
+3. [Pytorch 1.0]
 
 ## Setup
 1. Clone this repo: `git clone https://github.com/Roboy/soncreo`
