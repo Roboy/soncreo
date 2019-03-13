@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ### Option 2: Docker
 Our Docker contain all the requirements, ROS2, Cuda 9.0 and cuDNN. Our Docker image can be downloaded via `docker pull sharcc92/soncreo:latest`. The argument `-v /path/to/home/folder:path/to/soncreo/folder` you can add the soncreo repo and the provided tacotron2 and nv-wavenet models.
 ```
-sudo docker run --rm --runtime=nvidia -v /path/to/home/folder:path/to/guest/folder -ti sharcc92/soncreo:latest bash
+sudo docker run --rm --runtime=nvidia -v /path/to/home/folder:path/to/soncreo/folder -ti sharcc92/soncreo:latest bash
 ```
 But instead of downloading the docker image we recommend to setup your own docker via our provided dockerfile. 
 The installation instruction can be found in the README-file in the folder `docker`.
