@@ -53,7 +53,7 @@ Add paths for output directory and checkpoints in the config.json file. Then run
 #### To infer with our pretrained models for tacotron2 and wavenet
 1. Download pretrained models [here](https://drive.google.com/drive/folders/1kwyITQMFvBaQaFTihTQ8DrL_CcVeFaRh?usp=sharing) 
 2. Add the paths of the pretrained models in "checkpoint_tac' and 'checkpoint_wav' in config.json
-4. Run the following command: `python combine.py --default=True --text="Write your text here"`
+4. Run the following command: `python combine.py`
 
 
 ## (Optional) Connect the Text to Speech Inference via ROS2
