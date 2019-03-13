@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,'./tacotron2')
+sys.path.insert(0, './tacotron2')
 import numpy as np
 import torch
 import argparse
@@ -10,7 +10,7 @@ from tacotron2.train import load_model
 from tacotron2.text import text_to_sequence
 
 
-def train_mel(outdir,logdir,checkpoint):
+def train_mel(outdir, logdir, checkpoint):
 
     hparams = create_hparams()
 
@@ -26,7 +26,9 @@ def train_mel(outdir,logdir,checkpoint):
     train(outdir, logdir, checkpoint,
           True, 1, 0, False, hparams)
 
+
 def load_mel_model(checkpoint_path):
+
     hparams = create_hparams("distributed_run=False,mask_padding=False")
     hparams.sampling_rate = 22050
     hparams.filter_length = 1024
@@ -43,7 +45,8 @@ def load_mel_model(checkpoint_path):
     _ = model.eval()
     return model
 
-def inference_mel(text,model):
+
+def inference_mel(text, model):
     """"
     Performs conversion from text to mel spectogram
     """
@@ -55,7 +58,6 @@ def inference_mel(text,model):
     mel = mel.reshape(80, mel.shape[2])
     mel = mel.data
 
-
     filename = "text_to_mel"
     mel = torch.save(mel, filename)
 
@@ -65,7 +67,9 @@ def inference_mel(text,model):
 
     return file.name
 
+
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--output_directory', type=str,
                         help='directory to save checkpoints')
@@ -75,9 +79,8 @@ if __name__ == '__main__':
                         required=False, help='checkpoint path')
     parser.add_argument('--hparams', type=str,
                         required=False, help='comma separated name=value pairs')
-
-
     args = parser.parse_args()
+
     hparams = create_hparams(args.hparams)
 
     torch.backends.cudnn.enabled = hparams.cudnn_enabled
@@ -90,10 +93,3 @@ if __name__ == '__main__':
     print("cuDNN Benchmark:", hparams.cudnn_benchmark)
 
     train_mel(args.output_directory, args.log_directory, args.checkpoint_path)
-
-
-
-
-
-
-
