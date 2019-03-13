@@ -95,7 +95,8 @@ class Comb(AbstractClass):
 
 if __name__ == "__main__":
 
-
+    with open('config.json') as json_data_file:
+        data = json.load(json_data_file)
 
     parser = argparse.ArgumentParser()
 
