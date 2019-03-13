@@ -6,8 +6,6 @@ import json
 import argparse
 import torch
 import importlib
-import pyaudio
-import wave
 from scipy.io.wavfile import write
 
 #=====START: ADDED FOR DISTRIBUTED======4
@@ -140,24 +138,6 @@ def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rat
 
             iteration += 1
 
-"""
-
-def infer_wav(mel_path, checkpoint_path, output_dir, batch_size, implementation):
-
-    if implementation == "auto":
-        implementation = nv_wavenet.Impl.AUTO
-    elif implementation == "single":
-        implementation = nv_wavenet.Impl.SINGLE_BLOCK
-    elif implementation == "dual":
-        implementation = nv_wavenet.Impl.DUAL_BLOCK
-    elif implementation == "persistent":
-        implementation = nv_wavenet.Impl.PERSISTENT
-    else:
-        raise ValueError("implementation must be one of auto, single, dual, or persistent")
-
-
-    inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation)
-"""
 def load_wav_model(checkpoint_path):
 
     model = torch.load(checkpoint_path)['model']
