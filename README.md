@@ -35,7 +35,7 @@ The installation instruction can be found in the README-file in the folder `dock
 2. In hparams update `training_files='tacotron2/filelists/ljs_audio_text_train_filelist.txt'` and `validation_files='tacotron2/filelists/ljs_audio_text_val_filelist.txt'` 
 3. cd into parent Soncreo directory `cd ..`
 4. `python interface.py --output_directory=output --log_directory=logdir`
-5. (OPTIONAL) `tensorboard --logdir=outdir/logdir`
+5. (OPTIONAL) `tensorboard --logdir=output/logdir`
 
 ## Training NV-Wavenet
 Make a list of the file names to use for training/testing \
