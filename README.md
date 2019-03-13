@@ -47,12 +47,12 @@ Train the model \
 ## Inference Text to Speech
 
 #### To play audio from text
- `python combine.py --default=False --text='Write your text here' --checkpoint_tac='checkpoint/tac' --checkpoint_wav='checkpoints/wav' --batch=1 output_directory='./output --implementation="persistent"`
+Add paths for output directory and checkpoints in the config.json file.
+ `python combine.py`
    
 #### To infer with our pretrained models for tacotron2 and wavenet
 1. Download pretrained models [here](https://drive.google.com/drive/folders/1kwyITQMFvBaQaFTihTQ8DrL_CcVeFaRh?usp=sharing) 
-2. Create a folder named checkpoint and copy tacotron2 and wavenet pretrained models: `mkdir checkpoints`
-3. Create a folder called output (used to save the produced wav file: `mkdir outputs`
+2. Add the paths of the pretrained models in "checkpoint_tac' and 'checkpoint_wav' in config.json
 4. Run the following command: `python combine.py --default=True --text="Write your text here"`
 
 
