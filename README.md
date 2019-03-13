@@ -47,7 +47,7 @@ Train the model \
 ## Inference Text to Speech
 
 #### To play audio from text
-Add paths for output directory and checkpoints in the config.json file. Then run \
+Add paths for output directory and checkpoints in the config.json file. Then run the following command\
  `python combine.py`
    
 #### To infer with our pretrained models for tacotron2 and wavenet
