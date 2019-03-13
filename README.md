@@ -22,7 +22,7 @@ A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide au
 1. `cd tacotron2` and  then update .wav paths: `sed -i -- 's,DUMMY,ljs_dataset_folder/wavs,g' filelists/*.txt`
 2. In hparams update `training_files='tacotron2/filelists/ljs_audio_text_train_filelist.txt'` and `validation_files='tacotron2/filelists/ljs_audio_text_val_filelist.txt'` 
 3. cd into parent Soncreo directory `cd ..`
-4. `python interface.py --output_directory=output --log_directory=logdir`
+4. `python interface.py --output_directory=outdir --log_directory=logdir`
 5. (OPTIONAL) `tensorboard --logdir=outdir/logdir`
 
 ## Training NV-Wavenet
