@@ -17,7 +17,7 @@ Setup your system by installing current GPU driver, Cuda and cuDNN. Afterwards i
 pip install -r requirements.txt
 ```
 ### Option 2: Docker
-Our Docker contain all the requirements, ROS2, Cuda 9.0 and cuDNN. Our Docker image can be downloaded via `docker pull sharcc92/soncreo:latest`. The argument `-v /path/to/home/folder:path/to/soncreo/folder` you can add the soncreo repo and the provided tacotron2 and nv-wavenet models.
+A installed Docker with Nvidia environment is a requirement (Installation instruction can be found in `docker/README`). Our Docker contain all the package requirements, ROS2, Cuda 9.0 and cuDNN. Our Docker image can be downloaded via `docker pull sharcc92/soncreo:latest`. The argument `-v /path/to/soncreo/folder:path/to/guest/folder` creates a shared folder between guest and host. You can add the soncreo repo and the provided tacotron2 and nv-wavenet models. 
 ```
 sudo docker run --rm --runtime=nvidia -v /path/to/home/folder:path/to/soncreo/folder -ti sharcc92/soncreo:latest bash
 ```
