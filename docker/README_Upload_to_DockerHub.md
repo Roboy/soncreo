@@ -32,4 +32,4 @@ The Tutorial can also be found in [here](https://ropenscilabs.github.io/r-docker
 
 Further useful commands:
 - Saving and loading images: `docker save soncreo > soncreo.tar`
-- Loading images: `docker load --input verse_gapminder.tar`
+- Loading images: `docker load --input soncreo.tar`
