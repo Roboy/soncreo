@@ -1,0 +1,10 @@
+{
+  "output_directory": "output",
+  "log_directory": "logdir",
+  "text": "Enter your text here",
+  "checkpoint_tac": "checkpoints/tacotron2_statedict.pt",
+  "checkpoint_wav": "checkpoints/wavenet_640000",
+  "batch": 1,
+  "implementation": "auto"
+
+}
