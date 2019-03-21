@@ -52,7 +52,9 @@ Train the model \
 
 #### To play audio from text
 Add paths for output directory and checkpoints in the config.json file. Then run the following command\
- `python combine.py`
+
+ `python combine.py --default=False --text='Write your text here' --checkpoint_tac='checkpoint/tac' --checkpoint_wav='checkpoints/wav' --batch=1 --output_directory='./output' --implementation="persistent"`
+
    
 #### To infer with our pretrained models for tacotron2 and wavenet
 1. Download pretrained models [here](https://drive.google.com/drive/folders/1kwyITQMFvBaQaFTihTQ8DrL_CcVeFaRh?usp=sharing) 
