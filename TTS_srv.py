@@ -1,58 +1,50 @@
-#Start ROS2 service client for Soncreo ROS2
 from roboy_cognition_msgs.srv import Talk
-from combine import Comb as C
-#g_node = None  # global Node
-#
+from roboy_cognition_msgs.msg import SpeechSynthesis
+from combine import Comb
+import rclpy
+from rclpy.node import Node
+import json
 
 
-
-# Channel event callback function
-class Soncreo_TTS():
+class SoncreoTTS(Node):
 
     def __init__(self):
-        # load models
-        pass
+        super().__init__('soncreo_tts')
+        self.publisher = self.create_publisher(SpeechSynthesis, '/roboy/cognition/speech/synthesis')
+        self.srv = self.create_service(Talk, '/roboy/cognition/speech/synthesis/talk', self.talk_callback)
+        print("Ready to /roboy/cognition/speech/synthesis/talk")
 
-    def talk_callback(request, response):
+        self.c = Comb('checkpoints/tacotron2_statedict.pt', 'checkpoints/wavenet_640000')
+        self.c.inference_audio("Speech synthesis is ready now", data["output_directory"],
+                               data["batch"], data["implementation"])
 
-        response.success = True  # evtl.  return {'success':True} from Cerevoice
-        g_node.get_logger().info('Incoming Text: %s' % (request.text))
-        C().inference_audio(request.text)
+    def talk_callback(self, request, response):
+        response.success = True  # evtl.  return {'success':True}
+        self.get_logger().info('Incoming Text: %s' % (request.text))
+        msg = SpeechSynthesis()
+        msg.duration = 5
+        msg.phoneme = 'o'
+        self.publisher.publish(msg)
+        self.c.inference_audio(request.text, data["output_directory"], data["batch"], data["implementation"])
+        msg.phoneme = 'sil'
+        msg.duration = 0
+        self.publisher.publish(msg)
         return response
 
 
 def main(args=None):
-     #instance with inference audio function
 
-    global g_node
-    try:
-        import rclpy
-        from roboy_cognition_msgs.srv import Talk
-    except:
-        print("Roboy_cognition_msgs was not found")
-
-    # Init Rclpy
+    global data
+    with open('config.json') as json_data_file:
+        data = json.load(json_data_file)
     rclpy.init(args=args)
 
-    # create node
-    g_node = rclpy.create_node('minimal_service')
+    soncreo_tts = SoncreoTTS()
 
-    # create service
-    srv = g_node.create_service(Talk, '/roboy/cognition/speech/synthesis/talk', Soncreo_TTS.talk_callback)
-    print("Ready to /roboy/cognition/speech/synthesis/talk")
+    rclpy.spin(soncreo_tts)
 
-    # Speech Synthesis is ready now.
-    C().inference_audio("Speech synthesis is ready now")
-
-    # loop RCLpy
-    while rclpy.ok():
-        rclpy.spin_once(g_node)
-
-    # Destroy Service
-    g_node.destroy_service(srv)
     rclpy.shutdown()
 
 
 if __name__ == '__main__':
-
     main()

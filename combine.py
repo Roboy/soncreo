@@ -2,53 +2,74 @@ import argparse
 import wave
 import pyaudio
 import os
-#from logmmse import logmmse_from_file
+import json
+import time
 
-from abc import ABC,abstractmethod
+from abc import ABC, abstractmethod
+
+
 class AbstractClass(ABC):
 
     @abstractmethod
-    def train_mel(self):
+    def load_models(self, tac_model, wav_model):
         pass
+
     @abstractmethod
-    def train_wav(self):
+    def inference_audio(self, text, outdir, batch, implementation):
         pass
+
     @abstractmethod
-    def inference_audio(self):
+    def play_audio(self, fname):
         pass
+
     @abstractmethod
-    def play_audio(self):
+    def preprocess(self, text):
         pass
+
 
 class Comb(AbstractClass):
-    def __init__(self):
-        self.batch = 1
-    def train_mel(self):
-        #sys.path.insert(0, './tacotron2')
-        from interface import train_mel as tac2
-        tac2('./outdir', './logdir', None)
-    def train_wav(self, train_config):
-        #sys.path.insert(0, './nvwavenet/pytorch')
-        from interface_wavenet import train_wav as nv
-        nv(train_config)
 
+    def __init__(self, tac_model, wav_model):
+        self.mel_model, self.wav_model = self.load_models(tac_model, wav_model)
 
-    def inference_audio(self, text, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_640000',
-                        outdir="./output", batch=1, implementation="auto"):
+    def preprocess(self, text):
+
+        if text[len(text) - 1] == '.' or text[len(text) - 1] == '?' or text[len(text) - 1] == '!':
+            text = text
+        else:
+            text = text + '.'
+        print(text)
+        return text
+
+    def load_models(self, tac_model="./checkpoints/tacotron2_statedict.pt", wav_model='./checkpoints/wavenet_640000'):
+        from interface import load_mel_model
+        mel_model = load_mel_model(tac_model)
+        from interface_wavenet import load_wav_model
+        nvwav_model = load_wav_model(wav_model)
+        return mel_model, nvwav_model
+
+    def inference_audio(self, text, outdir, batch, implementation):
+
+        text = self.preprocess(text)
+        start = time.time()
         from interface import inference_mel
-        mel = inference_mel(text, tac_model)
+        mel = inference_mel(text, self.mel_model)
         print(mel)
 
         from interface_wavenet import infer_wav
-        infer_wav(mel, wav_model, outdir, batch, implementation)
+        infer_wav(mel, self.wav_model[0], self.wav_model[1], outdir, batch, implementation)
 
         fname = os.path.join(outdir, os.path.splitext(mel)[0] + "." + "wav")
 
-        #out = logmmse_from_file(fname,output_file="denoised")
+        end = time.time()
+        print("Inference time", end-start)
+
+        start_a = time.time()
         self.play_audio(fname)
+        end_a = time.time()
+        print("Audio playback time", end_a-start_a)
 
-
-    def play_audio(self,fname):
+    def play_audio(self, fname):
         wf = wave.open(fname, 'rb')
         p = pyaudio.PyAudio()
 
@@ -79,34 +100,32 @@ class Comb(AbstractClass):
 
 
 if __name__ == "__main__":
-    c=Comb()
+
+    with open('config.json') as json_data_file:
+        config = json.load(json_data_file)
+
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--train_wav', type=bool, help='Argument to train mel spectogram to audio model', default=False)
-    parser.add_argument('--text', type=str, help='Text input for speech generation', default="Why are robots shy? Because they have hardware and software but no underwear.")
-
-    parser.add_argument('--default_vals', type=bool, help='All arguments are default values', default=True)
-
-    parser.add_argument('--config', type=str,
-                        help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
-
+    parser.add_argument('--text', type=str, help='Text input for speech generation', default=config["text"])
     parser.add_argument('-o', '--output_directory', type=str,
-                        help='directory to save audio files')
+                        help='directory to save audio files', default=config["output_directory"])
     parser.add_argument('-l', '--log_directory', type=str,
-                        help='directory to save tensorboard logs', default="./logdir")
+                        help='directory to save tensorboard logs', default=config["log_directory"])
     parser.add_argument('--checkpoint_tac', type=str,
-                        required=False, help='checkpoint path')
+                        required=False, help='Tacotron2 checkpoint path', default=config["checkpoint_tac"])
 
-    parser.add_argument('--checkpoint_wav')
-    parser.add_argument('-b', '--batch_size')
+    parser.add_argument('--checkpoint_wav', type=str, required=False, help="Wavenet checkpoint path",
+                        default=config["checkpoint_wav"])
+    parser.add_argument('-b', '--batch_size', help="batch size for inference", default=config["batch"])
     parser.add_argument('-i', '--implementation', type=str,
-                        help="""Which implementation of NV-WaveNet to use.
-                               Takes values of single, dual, or persistent""")
-    #parser.add_argument('--text', type=str, default="Hello.")
-
+                        help="Which implementation of NV-WaveNet to use.Takes values of single, dual, or persistent",
+                        default=config["implementation"])
 
     args = parser.parse_args()
-    if args.default_vals:
-        c.inference_audio(args.text)
-    else:
-        c.inference_audio(args.text, args.checkpoint_tac, args.checkpoint_wav, args.output_directory, args.batch_size, args.implementation)
+
+    c = Comb(args.checkpoint_tac, args.checkpoint_wav)
+
+    start_t = time.time()
+    c.inference_audio(args.text, args.output_directory, args.batch_size, args.implementation)
+    end_t = time.time()
+    print("Total", end_t-start_t)

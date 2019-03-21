@@ -1,24 +1,24 @@
-import sys
-sys.path.insert(0,'./nv-wavenet/pytorch')
-
 import os
 import json
 import argparse
 import torch
-import pyaudio
-import wave
+import importlib
+from scipy.io.wavfile import write
+import sys
+sys.path.insert(0, './nv-wavenet/pytorch')
 
-#=====START: ADDED FOR DISTRIBUTED======4
-#from distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
-#from torch.utils.data.distributed import DistributedSampler
-#=====END:   ADDED FOR DISTRIBUTED======
+# =====START: ADDED FOR DISTRIBUTED======4
+# from distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
+# from torch.utils.data.distributed import DistributedSampler
+# =====END:   ADDED FOR DISTRIBUTED======
 
 from torch.utils.data import DataLoader
 from wavenet import WaveNet
 from mel2samp_onehot import Mel2SampOnehot
 from utils import to_gpu
-from inference import main as inf_main
 import nv_wavenet
+utils_nv = importlib.import_module("nv-wavenet.pytorch.utils")
+
 
 class CrossEntropyLoss(torch.nn.Module):
     def __init__(self):
@@ -43,7 +43,7 @@ class CrossEntropyLoss(torch.nn.Module):
 def load_checkpoint(checkpoint_path, model, optimizer):
     assert os.path.isfile(checkpoint_path)
     checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
-    for key,value in checkpoint_dict.items():
+    for key, value in checkpoint_dict.items():
         print(key)
     iteration = checkpoint_dict['iteration']
     optimizer.load_state_dict(checkpoint_dict['optimizer'])
@@ -52,6 +52,7 @@ def load_checkpoint(checkpoint_path, model, optimizer):
     print("Loaded checkpoint '{}' (iteration {})" .format(
           checkpoint_path, iteration))
     return model, optimizer, iteration
+
 
 def save_checkpoint(model, optimizer, learning_rate, iteration, filepath):
     print("Saving model and optimizer state at iteration {} to {}".format(
@@ -63,8 +64,9 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, filepath):
                 'optimizer': optimizer.state_dict(),
                 'learning_rate': learning_rate}, filepath)
 
+
 def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rate,
-          iters_per_checkpoint, batch_size, seed, checkpoint_path):
+              iters_per_checkpoint, batch_size, seed, checkpoint_path):
 
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -130,7 +132,7 @@ def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rat
 
             print("{}:\t{:.9f}".format(iteration, reduced_loss))
 
-            if (iteration % iters_per_checkpoint == 0):
+            if iteration % iters_per_checkpoint == 0:
                 if rank == 0:
                     checkpoint_path = "{}/wavenet_{}".format(
                         output_directory, iteration)
@@ -139,7 +141,22 @@ def train_wav(num_gpus, rank, group_name, output_directory, epochs, learning_rat
 
             iteration += 1
 
-def infer_wav(mel_path, checkpoint_path, output_dir, batch_size, implementation):
+
+def load_wav_model(checkpoint_path):
+
+    model = torch.load(checkpoint_path)['model']
+    wavenet = nv_wavenet.NVWaveNet(**(model.export_weights()))
+    return model, wavenet
+
+
+def chunker(seq, size):
+    """
+    https://stackoverflow.com/a/434328
+    """
+    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+
+def infer_wav(mel_files, model, wavenet, output_dir, batch_size, implementation):
 
     if implementation == "auto":
         implementation = nv_wavenet.Impl.AUTO
@@ -151,24 +168,39 @@ def infer_wav(mel_path, checkpoint_path, output_dir, batch_size, implementation)
         implementation = nv_wavenet.Impl.PERSISTENT
     else:
         raise ValueError("implementation must be one of auto, single, dual, or persistent")
+    mel_files = utils_nv.files_to_list(mel_files)
 
+    for files in chunker(mel_files, batch_size):
+        mels = []
+        for file_path in files:
+            print(file_path)
+            mel = torch.load(file_path)
+            mel = utils_nv.to_gpu(mel)
+            mels.append(torch.unsqueeze(mel, 0))
+        cond_input = model.get_cond_input(torch.cat(mels, 0))
+        audio_data = wavenet.infer(cond_input, implementation)
 
-    inf_main(mel_path, checkpoint_path, output_dir, batch_size, implementation)
+        for i, file_path in enumerate(files):
+            file_name = os.path.splitext(os.path.basename(file_path))[0]
 
-def play_audio(fname):
-    pass
+            audio = utils_nv.mu_law_decode_numpy(audio_data[i, :].cpu().numpy(), wavenet.A)
+            audio = utils_nv.MAX_WAV_VALUE * audio
+            wavdata = audio.astype('int16')
+            write("{}/{}.wav".format(output_dir, file_name),
+                  16000, wavdata)
+
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--config', type=str,
+    parser.add_argument('-c', '--config', type=str,
                         help='JSON file for nv-wavenet configuration', default='./nv-wavenet/pytorch/config.json')
     parser.add_argument('-r', '--rank', type=int, default=0,
                         help='rank of process for distributed')
     parser.add_argument('-g', '--group_name', type=str, default='',
                         help='name of group for distributed')
     args = parser.parse_args()
-
 
     with open(args.config) as f:
         data = f.read()
@@ -192,6 +224,3 @@ if __name__ == "__main__":
         raise Exception("Doing single GPU training on rank > 0")
 
     train_wav(num_gpus, args.rank, args.group_name, **train_config)
-
-
-
