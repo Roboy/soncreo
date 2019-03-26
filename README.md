@@ -1,7 +1,7 @@
 # Roboy Soncreo
 Roboy Soncreo (from Lat. *sonus* - sound and *creō* - I create, make, produce) - a library for Speech Generation based on Deep Learning models.
 
-A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide audio synthesis from text. It also supports interfacing using ROS2 (not implemented yet)
+A pytorch implementaton that combines [Tacotron2] and [NV-Wavenet] to provide audio synthesis from text. It also supports interfacing using ROS2 
 
 ## Pre-requisites
 1. NVIDIA GPU + CUDA cuDNN (tested for version CUDA 9.0 and above)
