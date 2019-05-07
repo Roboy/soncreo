@@ -1,12 +1,11 @@
 from roboy_cognition_msgs.srv import Talk
 from roboy_cognition_msgs.msg import SpeechSynthesis
-from combine import Comb
+from wave_interface import Comb
 import rclpy
 from rclpy.node import Node
 
 
-class Soncreo_TTS(Node):
-
+class SoncreoTTS(Node):
     def __init__(self):
         super().__init__('soncreo_tts')
         self.publisher = self.create_publisher(SpeechSynthesis, '/roboy/cognition/speech/synthesis')
@@ -34,7 +33,7 @@ class Soncreo_TTS(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    soncreo_tts = Soncreo_TTS()
+    soncreo_tts = SoncreoTTS()
 
     while rclpy.ok():
         rclpy.spin_once(soncreo_tts)
