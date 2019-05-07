@@ -36,7 +36,7 @@ def main(args=None):
 
     soncreo_tts = Soncreo_TTS()
 
-    while rclpy.ok:
+    while rclpy.ok():
         rclpy.spin_once(soncreo_tts)
 
     rclpy.shutdown()
