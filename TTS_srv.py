@@ -1,3 +1,5 @@
+import os
+
 from roboy_cognition_msgs.srv import Talk
 from roboy_cognition_msgs.msg import SpeechSynthesis
 from wave_interface import Comb
@@ -11,10 +13,12 @@ class SoncreoTTS(Node):
         self.publisher = self.create_publisher(SpeechSynthesis, '/roboy/cognition/speech/synthesis')
         self.srv = self.create_service(Talk, '/roboy/cognition/speech/synthesis/talk', self.talk_callback)
         print("Ready to /roboy/cognition/speech/synthesis/talk")
-
+        print(f"Roboy Soncreo running with PID: {os.getpid()}")
+        self.init_line = "Speech synthesis is ready now"
         self.c=Comb()
-        print("speech synthesis is ready now")
-        self.c.inference_audio("Speech synthesis is ready now")
+        print(f"Generating: {self.init_line}")
+        self.c.inference_audio(self.init_line)
+        print("Roboy Soncreo is ready!")
 
     def talk_callback(self, request, response):
         response.success = True  # evtl.  return {'success':True}
