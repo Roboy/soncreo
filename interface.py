@@ -47,20 +47,25 @@ def train_mel(outdir,logdir,checkpoint):
           True, 1, 0, False, hparams)
 
 def load_mel_model(checkpoint_path):
-    hparams = create_hparams("distributed_run=False,mask_padding=False")
+    hparams = create_hparams()
     hparams.sampling_rate = 22050
-    hparams.filter_length = 1024
-    hparams.hop_length = 256
-    hparams.win_length = 1024
-
     model = load_model(hparams)
-    try:
-        model = model.module
-    except:
-        pass
-
-    model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(checkpoint_path)['state_dict'].items()})
-    _ = model.eval()
+    model.load_state_dict(torch.load(checkpoint_path)['state_dict'])
+    _ = model.cuda().eval().half()
+    # hparams = create_hparams("distributed_run=False,mask_padding=False")
+    # hparams.sampling_rate = 22050
+    # hparams.filter_length = 1024
+    # hparams.hop_length = 256
+    # hparams.win_length = 1024
+    #
+    # model = load_model(hparams)
+    # try:
+    #     model = model.module
+    # except:
+    #     pass
+    #
+    # model.load_state_dict({k.replace('module.', ''): v for k, v in torch.load(checkpoint_path)['state_dict'].items()})
+    # _ = model.eval()
     return model
 
 def inference_mel(text,model):
@@ -77,13 +82,13 @@ def inference_mel(text,model):
 
 
     filename = "text_to_mel"
-    mel = torch.save(mel, filename)
+    torch.save(mel, filename)
 
     file = open(str(filename) + ".txt", 'w')
     file.write(filename)
     file.close()
 
-    return file.name
+    return mel, file.name
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

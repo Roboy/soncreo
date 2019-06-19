@@ -24,7 +24,10 @@ class Soncreo_TTS(Node):
         msg.duration = 5
         msg.phoneme = 'o'
         self.publisher.publish(msg)
-        self.c.inference_audio(request.text)
+        try:
+            self.c.inference_audio(request.text)
+        except:
+            pass
         msg.phoneme = 'sil'
         msg.duration = 0
         self.publisher.publish(msg)
@@ -36,7 +39,8 @@ def main(args=None):
 
     soncreo_tts = Soncreo_TTS()
 
-    rclpy.spin(soncreo_tts)
+    while rclpy.ok():
+        rclpy.spin_once(soncreo_tts)
 
     rclpy.shutdown()
 
