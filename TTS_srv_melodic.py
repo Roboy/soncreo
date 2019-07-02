@@ -1,25 +1,25 @@
-from roboy_cognition_msgs.srv import Talk
+from roboy_cognition_msgs.srv import Talk, TalkResponse
 from roboy_cognition_msgs.msg import SpeechSynthesis
 from combine import Comb
-import rclpy
-from rclpy.node import Node
+import rospy
 
 
 class Soncreo_TTS(Node):
 
     def __init__(self):
-        super().__init__('soncreo_tts')
-        self.publisher = self.create_publisher(SpeechSynthesis, '/roboy/cognition/speech/synthesis')
-        self.srv = self.create_service(Talk, '/roboy/cognition/speech/synthesis/talk', self.talk_callback)
-        print("Ready to /roboy/cognition/speech/synthesis/talk")
+        rospy.init_node('soncreo_tts')
+        self.publisher = rospy.Publisher('/roboy/cognition/speech/synthesis', SpeechSynthesis)
+        self.srv = rospy.Service('/roboy/cognition/speech/synthesis/talk', Talk,  self.talk_callback)
+        
 
         self.c=Comb()
-        print("speech synthesis is ready now")
         self.c.inference_audio("Speech synthesis is ready now")
+        rospy.loginfo("Ready to /roboy/cognition/speech/synthesis/talk")
 
-    def talk_callback(self, request, response):
+    def talk_callback(self, request):
+        response = TalkResponse()
         response.success = True  # evtl.  return {'success':True}
-        self.get_logger().info('Incoming Text: %s' % (request.text))
+        rospy.loginfo('Incoming Text: %s' % (request.text))
         msg = SpeechSynthesis()
         msg.duration = 5
         msg.phoneme = 'o'
@@ -35,14 +35,11 @@ class Soncreo_TTS(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
 
     soncreo_tts = Soncreo_TTS()
-
-    while rclpy.ok():
-        rclpy.spin_once(soncreo_tts)
-
-    rclpy.shutdown()
+    
+    while not rospy.is_shutdown:
+        rospy.spin()
 
 
 if __name__ == '__main__':
