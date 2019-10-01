@@ -12,6 +12,7 @@ from pydub.playback import play
 import io
 
 import rospy
+import rosgraph
 from roboy_cognition_msgs.srv import Talk, TalkResponse
 from roboy_cognition_msgs.msg import SpeechSynthesis
 
@@ -30,6 +31,10 @@ else:
     from urllib2 import URLError
     from urllib import urlencode
 
+sys.tracebacklimit = 0
+
+if not rosgraph.is_master_online():
+    raise Exception("ROS master is not online")
 
 class DemoError(Exception):
     pass
@@ -74,6 +79,8 @@ class BaiduTTS():
         tt = Thread(target=self.token_watcher, args=())
         tt.setDaemon(True)
         tt.start()
+
+        self.synthesize('你好人')
 
         rospy.loginfo("Baidu TTS is ready")
 
