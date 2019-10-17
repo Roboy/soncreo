@@ -6,9 +6,10 @@ from pydub import AudioSegment
 from pydub.playback import play
 import io
 
-from roboy_cognition_msgs.srv import Talk, TalkResponse
+from roboy_cognition_msgs.srv import Talk, TalkResponse, TalkToFile, TalkToFileResponse
 from roboy_cognition_msgs.msg import SpeechSynthesis
 import rospy
+import rospkg
 import rosgraph
 # from rclpy.node import Node
 
@@ -27,9 +28,11 @@ class GoogleTTS():
 
     def __init__(self):
         rospy.init_node('google_tts_en')
+        rospack = rospkg.RosPack()
+        self.path = rospack.get_path('soncreo')+'/generated/'
         self.publisher = rospy.Publisher('/roboy/cognition/speech/synthesis', SpeechSynthesis)
         self.srv = rospy.Service('/roboy/cognition/speech/synthesis/talk', Talk,  self.talk_callback)
-
+        self.save_srv = rospy.Service('/roboy/cognition/speech/synthesis/save/english', TalkToFile, self.save_callback)
         self.client = texttospeech.TextToSpeechClient()
         self.voice = texttospeech.types.VoiceSelectionParams(
             language_code='en-US',
@@ -38,7 +41,7 @@ class GoogleTTS():
             # effects_profile_id=["large-home-entertainment-class-device"],
             # pitch=-1.0,
             audio_encoding=texttospeech.enums.AudioEncoding.MP3)
-
+        self.FORMAT = "wav"
         rospy.loginfo("Ready to /roboy/cognition/speech/synthesis/talk")
         self.synthesize("I am ready!")
 
@@ -55,6 +58,18 @@ class GoogleTTS():
         msg.duration = 0
         self.publisher.publish(msg)
         return response
+
+    def save_callback(self, request):
+        response = TalkToFileResponse()
+        if request.text != "":
+            rospy.loginfo('Incoming Text: %s' % (request.text))
+            if request.filename != "":
+                rospy.loginfo('Saving to filename: %s' % (request.filename))
+            response.success = True
+            self.synthesize(request.text, request.filename)
+        else:
+            response.success = False
+        return response    
 
     @staticmethod
     def play_audio(fname):
@@ -92,14 +107,23 @@ class GoogleTTS():
         print("Output wave generated")
     
 
-    def synthesize(self, text):
+    def synthesize(self, text, filename=None):
         synthesis_input = texttospeech.types.SynthesisInput(text=text)
         rospy.loginfo("sending request..")
         response = self.client.synthesize_speech(synthesis_input, self.voice, self.audio_config)
         # import pdb; pdb.set_trace()
         # print(len(response.audio_content))
         song = AudioSegment.from_file(io.BytesIO(response.audio_content), format="mp3")
+        if filename:
+                if "/" in filename:
+                    dirname = filename.split("/")[0]
+                    if not os.path.exists(self.path+dirname):
+                        os.mkdir(self.path+dirname)
+                song.export(self.path+filename+"."+self.FORMAT, format=self.FORMAT)
+                rospy.loginfo("Saved to %s"%(self.path+filename+"."+self.FORMAT))
         play(song)
+
+
         # import pdb; pdb.set_trace()
         # song.export("google-output.wav", format="wav")
         # self.play_audio("google-output.wav")
