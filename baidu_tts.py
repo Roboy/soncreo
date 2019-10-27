@@ -51,6 +51,7 @@ class BaiduTTS():
         self.path = rospack.get_path('soncreo')+'/generated/'
         self.publisher = rospy.Publisher('/roboy/cognition/speech/synthesis', SpeechSynthesis, queue_size=1)
         self.srv = rospy.Service('/roboy/cognition/speech/synthesis/talk/chinese', Talk,  self.talk_callback)
+        self.en_srv = rospy.Service('/roboy/cognition/speech/synthesis/talk/english/baidu', Talk,  self.talk_callback)
         self.save_srv = rospy.Service('/roboy/cognition/speech/synthesis/save/chinese', TalkToFile, self.save_callback)
         self.API_KEY = api_key
         self.SECRET_KEY = secret_key
@@ -126,11 +127,12 @@ class BaiduTTS():
                 self.token, self.token_expires_in = self.fetch_token()
                 self.token_received = time.time()
 
-    def synthesize(self, text, filename=None):
+
+    def synthesize(self, text, filename=None, language='zh'):
         tex = quote_plus(text)  # 此处TEXT需要两次urlencode
         # print(tex)
         params = {'tok': self.token, 'tex': tex, 'per': self.PER, 'spd': self.SPD, 'pit': self.PIT, 'vol': self.VOL, 'aue': self.AUE, 'cuid': self.CUID,
-                  'lan': 'zh', 'ctp': 1}  # lan ctp 固定参数
+                  'lan': language, 'ctp': 1}  # lan ctp 固定参数
 
         data = urlencode(params)
         # print('test on Web Browser' + TTS_URL + '?' + data)
@@ -180,6 +182,7 @@ class BaiduTTS():
         msg.duration = 0
         self.publisher.publish(msg)
         return response
+
 
     def save_callback(self, request):
         response = TalkToFileResponse()
