@@ -17,7 +17,7 @@ import time
 import logging
 
 import sys
-
+import os
 sys.tracebacklimit = 0
 
 if not rosgraph.is_master_online():
@@ -37,10 +37,12 @@ class GoogleTTS():
         self.client = texttospeech.TextToSpeechClient()
         self.voice = texttospeech.types.VoiceSelectionParams(
             language_code='de-DE',
-            ssml_gender=texttospeech.enums.SsmlVoiceGender.FEMALE)
+            name='de-DE-Wavenet-C')
+            # ssml_gender=texttospeech.enums.SsmlVoiceGender.FEMALE)
         self.audio_config = texttospeech.types.AudioConfig(
-            # effects_profile_id=["large-home-entertainment-class-device"],
-            # pitch=-1.0,
+            # effects_profile_id=["telephony-class-application"],
+            pitch=3.2,
+            speaking_rate=0.9,
             audio_encoding=texttospeech.enums.AudioEncoding.MP3)
         self.FORMAT = "wav"
         rospy.loginfo("Ready to /roboy/cognition/speech/synthesis/talk/german")
@@ -70,7 +72,7 @@ class GoogleTTS():
             self.synthesize(request.text, request.filename)
         else:
             response.success = False
-        return response     
+        return response
 
     @staticmethod
     def play_audio(fname):
@@ -106,7 +108,7 @@ class GoogleTTS():
         p.terminate()
 
         print("Output wave generated")
-    
+
 
     def synthesize(self, text, filename=None):
         synthesis_input = texttospeech.types.SynthesisInput(text=text)
